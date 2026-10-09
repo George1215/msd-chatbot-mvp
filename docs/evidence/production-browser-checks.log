@@ -1,0 +1,6 @@
+Admin: authenticated login, 30-day report, operations summary, same-origin agent navigation; screenshot inspected.
+Host: authenticated setup, Secure/HttpOnly cookie, no legacy credential storage; screenshot inspected.
+Public widget: shadow-DOM controls visible, no configuration error; screenshot inspected.
+Browser error checks: no errors reported.
+Harness corrections: protected-page selector and custom-element DOM-presence wait.
+All verification browser sessions closed.

@@ -1,0 +1,148 @@
+
+> chat-msd-bot@0.1.0 test:sqlite
+> STORE_BACKEND=sqlite npm run test
+
+
+> chat-msd-bot@0.1.0 test
+> npm run test -w services/api
+
+
+> test
+> NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js
+
+TAP version 13
+# (node:26634) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: site auto-registers pending and stays hidden until approved
+ok 1 - site auto-registers pending and stays hidden until approved
+  ---
+  duration_ms: 256.601542
+  type: 'test'
+  ...
+# Subtest: decline requires a reason
+ok 2 - decline requires a reason
+  ---
+  duration_ms: 562.534959
+  type: 'test'
+  ...
+# Subtest: central admin approval makes widget live
+ok 3 - central admin approval makes widget live
+  ---
+  duration_ms: 453.938166
+  type: 'test'
+  ...
+# (node:26635) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+ok 4 - host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+  ---
+  duration_ms: 342.121708
+  type: 'test'
+  ...
+# Subtest: lost registration response retries the same credential and cannot take over another installation
+ok 5 - lost registration response retries the same credential and cannot take over another installation
+  ---
+  duration_ms: 67.36275
+  type: 'test'
+  ...
+# Subtest: host reconnect rejects a different website and stores the correct replacement only server-side
+ok 6 - host reconnect rejects a different website and stores the correct replacement only server-side
+  ---
+  duration_ms: 48.240583
+  type: 'test'
+  ...
+# Subtest: host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+ok 7 - host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+  ---
+  duration_ms: 121.715333
+  type: 'test'
+  ...
+# (node:26636) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy installation credentials migrate without invalidating existing installations
+ok 8 - legacy installation credentials migrate without invalidating existing installations
+  ---
+  duration_ms: 1.8785
+  type: 'test'
+  ...
+# Subtest: installation recovery rotates credentials, preserves site content and never exposes stored hashes
+ok 9 - installation recovery rotates credentials, preserves site content and never exposes stored hashes
+  ---
+  duration_ms: 1645.364042
+  type: 'test'
+  ...
+# (node:26637) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: retention removes expired closed transcripts, preserves active work and records counts
+ok 10 - retention removes expired closed transcripts, preserves active work and records counts
+  ---
+  duration_ms: 229.704792
+  type: 'test'
+  ...
+# (node:26638) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: password changes revoke every old HTTP session and preserve unrelated users
+ok 11 - password changes revoke every old HTTP session and preserve unrelated users
+  ---
+  duration_ms: 3520.948875
+  type: 'test'
+  ...
+# Subtest: agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+ok 12 - agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+  ---
+  duration_ms: 3696.374833
+  type: 'test'
+  ...
+# (node:26639) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: SQLite migration, rollback, persistence, backup restore and checksum validation
+ok 13 - SQLite migration, rollback, persistence, backup restore and checksum validation
+  ---
+  duration_ms: 1183.219917
+  type: 'test'
+  ...
+# Subtest: failed legacy migration can be retried without losing the source
+ok 14 - failed legacy migration can be retried without losing the source
+  ---
+  duration_ms: 17.5095
+  type: 'test'
+  ...
+# (node:26640) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+ok 15 - input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+  ---
+  duration_ms: 1280.707958
+  type: 'test'
+  ...
+# Subtest: offline administrator recovery refuses a locked store and stores only a digest
+ok 16 - offline administrator recovery refuses a locked store and stores only a digest
+  ---
+  duration_ms: 436.775125
+  type: 'test'
+  ...
+# (node:26642) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+ok 17 - selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+  ---
+  duration_ms: 2398.48175
+  type: 'test'
+  ...
+# (node:26643) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: complete governance, isolation, assignment and conversation lifecycle
+ok 18 - complete governance, isolation, assignment and conversation lifecycle
+  ---
+  duration_ms: 1679.290458
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8002.301458

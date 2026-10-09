@@ -1,0 +1,49 @@
+
+> chat-msd-bot@0.1.0 verify:production
+> npm run build:production-local && node scripts/verify-production.mjs
+
+
+> chat-msd-bot@0.1.0 build:production-local
+> VITE_API_URL= npm run build
+
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  79.27 kB │ gzip: 21.52 kB
+✓ built in 181ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 43 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/admin/index.html          0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/agent/index.html          0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/index.html     0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/admin.html     0.43 kB │ gzip:  0.28 kB
+dist/apps/assets/client-DtKfliUm.css    38.92 kB │ gzip:  7.45 kB
+dist/apps/assets/agent-Cbj5IJrX.js       3.87 kB │ gzip:  1.58 kB
+dist/apps/assets/siteAdmin-CsbPInv4.js   4.90 kB │ gzip:  2.00 kB
+dist/apps/assets/admin-RPnVDoue.js       7.82 kB │ gzip:  2.72 kB
+dist/apps/assets/site-BNYOIDrk.js        9.05 kB │ gzip:  3.58 kB
+dist/apps/assets/client-BTDfsF8H.js     48.56 kB │ gzip: 15.22 kB
+✓ built in 215ms
+Simulation configuration: /var/folders/k3/5sw3_y953lv028zrn1tt_4pw0000gn/T/msd-production-rehearsal-RmMSf1/original/config.json
+PASS: HTTPS trust, compiled pages/widget, private-file denial, bootstrap protection, secure host session/CSRF, installation, FAQ, approvals, staff authorization, live WebSocket chat, reporting and logout.
+Retained simulation: 1 site(s), 1 conversation(s).
+PASS: simulation backup; private credentials are not printed.
+PASS: simulation verify; private credentials are not printed.
+PASS: simulation restore; private credentials are not printed.
+Simulation configuration: /var/folders/k3/5sw3_y953lv028zrn1tt_4pw0000gn/T/msd-production-rehearsal-RmMSf1/restored/config.json
+PASS: HTTPS trust, compiled pages/widget, private-file denial, bootstrap protection, secure host session/CSRF, installation, FAQ, approvals, staff authorization, live WebSocket chat, reporting and logout.
+Retained simulation: 1 site(s), 2 conversation(s).
+PASS: fresh production runtime, complete private backup, verified restore, restart, retained users/site/FAQ/chat, and repeated live chat.

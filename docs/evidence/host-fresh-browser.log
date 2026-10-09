@@ -1,0 +1,5 @@
+Fresh installation registered pending; protected host setup added an FAQ; public widget stayed hidden.
+Decline, visible reason, resubmission, central FAQ override and approval passed.
+Two-way live chat passed; a fresh unauthenticated visitor sees the approved widget without installer credentials.
+Host logout/relogin, persisted settings, suspension/restore and real central outage/FAQ recovery passed.
+Fresh authenticated host-installer browser journey passed.

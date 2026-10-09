@@ -1,0 +1,5 @@
+Suspension requires a reason, hides the live widget, and restoration returns approved support.
+Credential rotation reason guard, reveal/hide/dismiss, invalid reconnect, private reconnect and reload persistence passed.
+Central FAQ deletion and decline/review/approve controls passed; a separate registration resubmitted through its scoped API.
+Disposable-agent reset issue/reveal/hide/dismiss, mismatch guards, redemption, live old-session revocation, password change/cancel, old-password rejection and logout passed.
+Host/admin logout and existing-administrator bootstrap protection passed. No browser errors. Template governance verification passed.

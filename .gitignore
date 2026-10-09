@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.*
+!.env.example
+dist
+.next
+coverage
+.DS_Store
+services/api/data/
+data/
+.test-artifacts/
+
+services/host/data/

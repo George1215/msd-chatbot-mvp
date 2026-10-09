@@ -1,0 +1,87 @@
+
+> chat-msd-bot@0.1.0 codebreak
+> npm run test && npm run build
+
+
+> chat-msd-bot@0.1.0 test
+> npm run test -w services/api
+
+
+> test
+> NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js
+
+TAP version 13
+# Subtest: site auto-registers pending and stays hidden until approved
+ok 1 - site auto-registers pending and stays hidden until approved
+  ---
+  duration_ms: 65.214667
+  type: 'test'
+  ...
+# Subtest: decline requires a reason
+ok 2 - decline requires a reason
+  ---
+  duration_ms: 219.539458
+  type: 'test'
+  ...
+# Subtest: central admin approval makes widget live
+ok 3 - central admin approval makes widget live
+  ---
+  duration_ms: 234.841709
+  type: 'test'
+  ...
+# Subtest: input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+ok 4 - input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+  ---
+  duration_ms: 523.091458
+  type: 'test'
+  ...
+# Subtest: selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+ok 5 - selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+  ---
+  duration_ms: 1172.872209
+  type: 'test'
+  ...
+# Subtest: complete governance, isolation, assignment and conversation lifecycle
+ok 6 - complete governance, isolation, assignment and conversation lifecycle
+  ---
+  duration_ms: 754.619541
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1380.264208
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  79.27 kB │ gzip: 21.52 kB
+✓ built in 89ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 40 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/admin/index.html        0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/agent/index.html        0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/index.html   0.41 kB │ gzip:  0.27 kB
+dist/apps/assets/client-BIYvvXGy.css  38.70 kB │ gzip:  7.40 kB
+dist/apps/assets/agent-DnMaU50d.js     3.87 kB │ gzip:  1.58 kB
+dist/apps/assets/admin-C2dhc3mC.js     4.10 kB │ gzip:  1.70 kB
+dist/apps/assets/site-dUPJocLd.js     11.48 kB │ gzip:  4.40 kB
+dist/apps/assets/client-p68GXgSs.js   45.54 kB │ gzip: 14.63 kB
+✓ built in 108ms

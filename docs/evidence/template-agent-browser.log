@@ -1,0 +1,9 @@
+Original inbox, search and four tabs, real accept/reply, availability and unclaimed-reply guards passed.
+Greeting, Text, FAQ and validated Link tools passed; polling and conversation switching preserve drafts, menu and search.
+All four file tools selected real files; protected download and image/video/audio previews passed; oversized files rejected.
+Maximum-length FAQ sent without truncation; same-file lost-response retry reuses the request key and produces one attachment.
+Transfer search/cancel/confirm, capacity limits/release, recipient reply, both-agent resolution and resolved controls passed.
+Account modal validation/cancel/sign-out and administrator assignment of an unclaimed ticket passed.
+Dark/light and mobile inbox/chat views passed; no browser JavaScript errors.
+Agent template full browser regression passed.
+Post-regression targeted check: original 150px attachment-image and attachment-video wrappers load protected real thumbnails; both open working media dialogs; no browser errors.

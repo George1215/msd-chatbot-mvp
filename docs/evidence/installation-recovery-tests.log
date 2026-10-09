@@ -1,0 +1,99 @@
+
+> chat-msd-bot@0.1.0 codebreak
+> npm run test && npm run build
+
+
+> chat-msd-bot@0.1.0 test
+> npm run test -w services/api
+
+
+> test
+> NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js
+
+TAP version 13
+# Subtest: site auto-registers pending and stays hidden until approved
+ok 1 - site auto-registers pending and stays hidden until approved
+  ---
+  duration_ms: 88.924583
+  type: 'test'
+  ...
+# Subtest: decline requires a reason
+ok 2 - decline requires a reason
+  ---
+  duration_ms: 320.432583
+  type: 'test'
+  ...
+# Subtest: central admin approval makes widget live
+ok 3 - central admin approval makes widget live
+  ---
+  duration_ms: 314.2265
+  type: 'test'
+  ...
+# Subtest: legacy installation credentials migrate without invalidating existing installations
+ok 4 - legacy installation credentials migrate without invalidating existing installations
+  ---
+  duration_ms: 1.094833
+  type: 'test'
+  ...
+# Subtest: installation recovery rotates credentials, preserves site content and never exposes stored hashes
+ok 5 - installation recovery rotates credentials, preserves site content and never exposes stored hashes
+  ---
+  duration_ms: 1019.492333
+  type: 'test'
+  ...
+# Subtest: input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+ok 6 - input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+  ---
+  duration_ms: 730.3405
+  type: 'test'
+  ...
+# Subtest: selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+ok 7 - selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+  ---
+  duration_ms: 1647.019375
+  type: 'test'
+  ...
+# Subtest: complete governance, isolation, assignment and conversation lifecycle
+ok 8 - complete governance, isolation, assignment and conversation lifecycle
+  ---
+  duration_ms: 1039.320708
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1895.846
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  79.27 kB │ gzip: 21.52 kB
+✓ built in 149ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 40 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/admin/index.html        0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/agent/index.html        0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/index.html   0.41 kB │ gzip:  0.27 kB
+dist/apps/assets/client-BIYvvXGy.css  38.70 kB │ gzip:  7.40 kB
+dist/apps/assets/agent-DnMaU50d.js     3.87 kB │ gzip:  1.58 kB
+dist/apps/assets/admin-wGOZWzKH.js     5.41 kB │ gzip:  2.09 kB
+dist/apps/assets/site-Bz5JAvXx.js     12.34 kB │ gzip:  4.61 kB
+dist/apps/assets/client-p68GXgSs.js   45.54 kB │ gzip: 14.63 kB
+✓ built in 178ms

@@ -1,0 +1,22 @@
+✓ Done
+✓ MSD admin
+  http://localhost:4301/apps/admin/
+"Signed in"
+✓ MSD agent
+  http://localhost:4302/apps/agent/
+"Signed in"
+"Central override and approval passed"
+"Visitor chat created"
+"Agent claimed and replied"
+"Two-way chat passed"
+"Reply delivered"
+"Suspended"
+"Suspension hides widget"
+"Restored"
+"Restoration passed"
+"Offline FAQ fallback passed"
+"Automatic resync passed"
+✓ Screenshot saved to /tmp/msd-msd-check.png
+✓ Screenshot saved to /tmp/msd-msd-agent.png
+✓ Screenshot saved to /tmp/msd-msd-site.png
+Browser free run passed.

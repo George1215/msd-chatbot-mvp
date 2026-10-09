@@ -1,0 +1,320 @@
+/* Additions for pages absent from the approved template. Original customer,
+   inbox, login and About component rules remain in approved.css unchanged. */
+#app {
+  width: 100%;
+  height: 100vh;
+}
+a {
+  color: var(--msd-light-blue);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--msd-light-blue);
+  outline-offset: 3px;
+}
+.demo-bar a {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 8px 13px;
+  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.demo-bar a:hover,
+.demo-bar a.active {
+  background: var(--msd-light-blue);
+  color: #fff;
+}
+.error {
+  color: var(--msd-orange);
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.error:empty {
+  display: none;
+}
+.login-card .error {
+  margin-top: 12px;
+}
+.auth-screen {
+  overflow: auto;
+}
+.auth-screen .login-screen {
+  min-height: 100vh;
+  height: auto;
+  padding-bottom: 24px;
+}
+.account-details {
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.account-details summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+.account-details p {
+  margin: 14px 0;
+}
+.account-details form {
+  margin-top: 14px;
+}
+.account-dialog {
+  margin: auto;
+  width: min(420px, calc(100vw - 32px));
+  max-height: 90vh;
+  overflow: auto;
+  background: var(--panel-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 30px 90px var(--shadow);
+}
+.account-dialog::backdrop {
+  background: #0009;
+}
+.account-dialog h2 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+.account-dialog p {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.secondary-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-main);
+}
+.staff-toolbar {
+  position: fixed;
+  top: 14px;
+  left: 18px;
+  right: 132px;
+  z-index: 95;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+.staff-toolbar h1 {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.staff-toolbar .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.staff-toolbar button,
+.staff-toolbar select {
+  border: 1px solid var(--border);
+  background: var(--panel-bg);
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 8px 11px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.staff-toolbar label {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.template-agent > #app > .error:not(:empty) {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 110;
+  padding: 12px 18px;
+  border: 1px solid var(--msd-orange);
+  border-radius: 14px;
+  background: var(--panel-bg);
+  max-width: calc(100vw - 32px);
+}
+.extension-page:not(.auth-screen) {
+  overflow: auto;
+}
+.extension-page:not(.auth-screen) #app {
+  max-width: 1180px;
+  height: auto;
+  min-height: 100vh;
+  margin: auto;
+  padding: 76px 22px 22px;
+}
+.extension-page:not(.auth-screen) .extension-header {
+  padding: 30px;
+  background: var(--header-bg);
+  border: 1px solid var(--border);
+  border-radius: 28px 28px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.extension-page:not(.auth-screen) h1 {
+  font-size: 28px;
+  margin-bottom: 7px;
+}
+.extension-page:not(.auth-screen) h2 {
+  font-size: 18px;
+  margin: 12px 0;
+}
+.extension-page:not(.auth-screen) p {
+  line-height: 1.6;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.extension-page:not(.auth-screen) button,
+.extension-page:not(.auth-screen) a.button {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--msd-blue);
+  color: white;
+  padding: 11px 16px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+}
+.extension-page:not(.auth-screen) button:hover {
+  filter: brightness(1.12);
+}
+.extension-page:not(.auth-screen) input,
+.extension-page:not(.auth-screen) select,
+.extension-page:not(.auth-screen) textarea {
+  width: 100%;
+  background: var(--shell-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text-main);
+  padding: 12px 14px;
+  margin: 7px 0 13px;
+  font: inherit;
+  font-size: 14px;
+}
+.extension-page:not(.auth-screen) textarea {
+  min-height: 90px;
+}
+.extension-page:not(.auth-screen) label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+.extension-page:not(.auth-screen) .card {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+.extension-page:not(.auth-screen) .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.extension-page:not(.auth-screen) .row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.extension-page:not(.auth-screen) .muted,
+.extension-page:not(.auth-screen) small {
+  color: var(--text-muted);
+}
+.extension-page:not(.auth-screen) .badge {
+  background: rgba(21, 159, 211, 0.12);
+  color: var(--msd-light-blue);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+.extension-page:not(.auth-screen) .error:not(:empty) {
+  margin: 12px 0;
+}
+.extension-page:not(.auth-screen) details {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.extension-page:not(.auth-screen) details.card {
+  padding: 22px;
+}
+.extension-page:not(.auth-screen) summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+.extension-page:not(.auth-screen) .theme-toggle {
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: var(--panel-bg);
+  color: var(--text-main);
+  font-size: 12px;
+}
+.extension-page .page-links {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .demo-bar a {
+    padding: 7px 8px;
+    font-size: 10.5px;
+  }
+  .staff-toolbar {
+    left: 10px;
+    right: 10px;
+    top: 8px;
+    align-items: flex-start;
+  }
+  .staff-toolbar h1 {
+    display: none;
+  }
+  .staff-toolbar .row {
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .staff-toolbar button,
+  .staff-toolbar select {
+    padding: 7px 9px;
+    font-size: 10.5px;
+  }
+  .extension-page:not(.auth-screen) #app {
+    padding: 100px 10px 16px;
+  }
+  .extension-page:not(.auth-screen) .extension-header {
+    padding: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .extension-page:not(.auth-screen) .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .auth-screen .login-screen {
+    padding-bottom: 0;
+  }
+}

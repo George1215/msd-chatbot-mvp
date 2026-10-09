@@ -1,0 +1,6 @@
+
+> chat-msd-bot@0.1.0 prod:smoke
+> node scripts/production-smoke.mjs
+
+PASS: HTTPS trust, compiled pages/widget, private-file denial, bootstrap protection, secure host session/CSRF, installation, FAQ, approvals, staff authorization, live WebSocket chat, reporting and logout.
+Retained simulation: 1 site(s), 1 conversation(s).

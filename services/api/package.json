@@ -1,0 +1,19 @@
+{
+  "name": "@chat-msd/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/start.js",
+    "start": "node src/start.js",
+    "test": "NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
+    "fastify": "^5.6.1",
+    "socket.io": "^4.8.1",
+    "zod": "^4.1.11",
+    "bcryptjs": "^3.0.2",
+    "@chat-msd/shared": "*"
+  }
+}

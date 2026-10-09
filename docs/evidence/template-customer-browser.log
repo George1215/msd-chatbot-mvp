@@ -1,0 +1,5 @@
+Original home cards, all service/topic pages, three languages, both themes and FAQ search passed.
+Real new ticket, visitor message, live support reply, attachment upload/download/image preview, size rejection and history continuation passed.
+Open customer ticket for agent checks: "conv_7fe9fa5e-06ef-4f7e-aa77-28c6552506c0"
+Conversation survives reload; offline cached FAQs, reconnect, closed conversation and fresh conversation passed.
+Mobile layout and standalone embed launcher passed; no browser errors.

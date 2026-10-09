@@ -1,0 +1,38 @@
+
+> chat-msd-bot@0.1.0 build:production-local
+> VITE_API_URL= npm run build
+
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 32 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  185.02 kB │ gzip: 42.56 kB
+✓ built in 177ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 49 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/dummy-site/index.html      0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/about/index.html           0.43 kB │ gzip:  0.29 kB
+dist/apps/apps/admin/index.html           0.44 kB │ gzip:  0.29 kB
+dist/apps/apps/dummy-site/admin.html      0.46 kB │ gzip:  0.30 kB
+dist/apps/apps/agent/index.html           0.51 kB │ gzip:  0.30 kB
+dist/apps/assets/agent-BlNZZzbY.css       2.68 kB │ gzip:  0.90 kB
+dist/apps/assets/client-g-AL6QDF.css     42.20 kB │ gzip:  7.87 kB
+dist/apps/assets/about-Dre4RUf1.js        2.83 kB │ gzip:  1.03 kB
+dist/apps/assets/siteAdmin-68oRr6QT.js    5.15 kB │ gzip:  2.09 kB
+dist/apps/assets/admin-BkyvQhOs.js        8.03 kB │ gzip:  2.81 kB
+dist/apps/assets/agent-BuLfg3QG.js       24.84 kB │ gzip:  8.47 kB
+dist/apps/assets/client-BAYm4SgD.js      51.12 kB │ gzip: 16.00 kB
+dist/apps/assets/site-CZw5FjXt.js       108.23 kB │ gzip: 23.74 kB
+✓ built in 289ms

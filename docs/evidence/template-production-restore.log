@@ -1,0 +1,52 @@
+
+> chat-msd-bot@0.1.0 verify:production
+> npm run build:production-local && node scripts/verify-production.mjs
+
+
+> chat-msd-bot@0.1.0 build:production-local
+> VITE_API_URL= npm run build
+
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 32 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  185.02 kB │ gzip: 42.56 kB
+✓ built in 231ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 49 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/dummy-site/index.html      0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/about/index.html           0.43 kB │ gzip:  0.29 kB
+dist/apps/apps/admin/index.html           0.44 kB │ gzip:  0.29 kB
+dist/apps/apps/dummy-site/admin.html      0.46 kB │ gzip:  0.30 kB
+dist/apps/apps/agent/index.html           0.51 kB │ gzip:  0.30 kB
+dist/apps/assets/agent-BlNZZzbY.css       2.68 kB │ gzip:  0.90 kB
+dist/apps/assets/client-g-AL6QDF.css     42.20 kB │ gzip:  7.87 kB
+dist/apps/assets/about-DyKv9mkC.js        2.83 kB │ gzip:  1.03 kB
+dist/apps/assets/siteAdmin-DYFb8bLx.js    5.15 kB │ gzip:  2.09 kB
+dist/apps/assets/admin-IdZKEHru.js        8.03 kB │ gzip:  2.81 kB
+dist/apps/assets/agent-CQBSdPv8.js       24.84 kB │ gzip:  8.47 kB
+dist/apps/assets/client-CmdEUYHQ.js      51.03 kB │ gzip: 15.98 kB
+dist/apps/assets/site-B0LUitDS.js       108.23 kB │ gzip: 23.74 kB
+✓ built in 213ms
+Simulation configuration: /var/folders/k3/5sw3_y953lv028zrn1tt_4pw0000gn/T/msd-production-rehearsal-odladk/original/config.json
+PASS: HTTPS trust, compiled pages/widget, private-file denial, bootstrap protection, secure host session/CSRF, installation, FAQ, approvals, staff authorization, live WebSocket chat, protected attachments/timeline, reporting and logout.
+Retained simulation: 1 site(s), 1 conversation(s).
+PASS: simulation backup; private credentials are not printed.
+PASS: simulation verify; private credentials are not printed.
+PASS: simulation restore; private credentials are not printed.
+Simulation configuration: /var/folders/k3/5sw3_y953lv028zrn1tt_4pw0000gn/T/msd-production-rehearsal-odladk/restored/config.json
+PASS: HTTPS trust, compiled pages/widget, private-file denial, bootstrap protection, secure host session/CSRF, installation, FAQ, approvals, staff authorization, live WebSocket chat, protected attachments/timeline, reporting and logout.
+Retained simulation: 1 site(s), 2 conversation(s).
+PASS: fresh production runtime, complete private backup, verified restore, restart, retained users/site/FAQ/chat, and repeated live chat.

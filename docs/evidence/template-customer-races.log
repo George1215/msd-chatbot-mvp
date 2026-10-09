@@ -1,0 +1,5 @@
+Lost-response creation/message retries settle the original payload once and preserve edited drafts.
+Late 401/403/404 sync failures and out-of-order ticket selections preserve the current ticket.
+Delayed file reads cancel on ticket changes; same-file retry reopens and retains its destination-specific request key.
+Late creation is retained in history without changing selection; recovered creation preserves the new-ticket form.
+All customer race regressions passed; no browser errors.

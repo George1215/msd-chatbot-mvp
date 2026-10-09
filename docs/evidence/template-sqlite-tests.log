@@ -1,0 +1,182 @@
+
+> chat-msd-bot@0.1.0 test:sqlite
+> STORE_BACKEND=sqlite npm run test
+
+
+> chat-msd-bot@0.1.0 test
+> npm run test -w services/api
+
+
+> test
+> NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js
+
+TAP version 13
+# (node:46690) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: site auto-registers pending and stays hidden until approved
+ok 1 - site auto-registers pending and stays hidden until approved
+  ---
+  duration_ms: 273.800709
+  type: 'test'
+  ...
+# Subtest: decline requires a reason
+ok 2 - decline requires a reason
+  ---
+  duration_ms: 801.360542
+  type: 'test'
+  ...
+# Subtest: central admin approval makes widget live
+ok 3 - central admin approval makes widget live
+  ---
+  duration_ms: 491.263917
+  type: 'test'
+  ...
+# (node:46691) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: attachment content validation allows documented types and rejects disguised, oversized and malformed files
+ok 4 - attachment content validation allows documented types and rejects disguised, oversized and malformed files
+  ---
+  duration_ms: 85.177334
+  type: 'test'
+  ...
+# Subtest: attachments enforce ownership, isolate visitors, retry safely and never expose bytes through message APIs or sockets
+ok 5 - attachments enforce ownership, isolate visitors, retry safely and never expose bytes through message APIs or sockets
+  ---
+  duration_ms: 390.789833
+  type: 'test'
+  ...
+# Subtest: attachment route accepts the 2 MiB bound, restores bytes with store snapshots, and retention removes them with the conversation
+ok 6 - attachment route accepts the 2 MiB bound, restores bytes with store snapshots, and retention removes them with the conversation
+  ---
+  duration_ms: 332.561125
+  type: 'test'
+  ...
+# Subtest: conversation timeline records real creation, claims, transfers and status changes including legacy audit history
+ok 7 - conversation timeline records real creation, claims, transfers and status changes including legacy audit history
+  ---
+  duration_ms: 59.641167
+  type: 'test'
+  ...
+# (node:46692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: local and central FAQ writes share content limits and reject invalid content without changing stored FAQs
+ok 8 - local and central FAQ writes share content limits and reject invalid content without changing stored FAQs
+  ---
+  duration_ms: 1100.932625
+  type: 'test'
+  ...
+# (node:46693) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+ok 9 - host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+  ---
+  duration_ms: 412.879167
+  type: 'test'
+  ...
+# Subtest: lost registration response retries the same credential and cannot take over another installation
+ok 10 - lost registration response retries the same credential and cannot take over another installation
+  ---
+  duration_ms: 73.260875
+  type: 'test'
+  ...
+# Subtest: host reconnect rejects a different website and stores the correct replacement only server-side
+ok 11 - host reconnect rejects a different website and stores the correct replacement only server-side
+  ---
+  duration_ms: 44.034333
+  type: 'test'
+  ...
+# Subtest: host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+ok 12 - host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+  ---
+  duration_ms: 155.146917
+  type: 'test'
+  ...
+# (node:46694) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy installation credentials migrate without invalidating existing installations
+ok 13 - legacy installation credentials migrate without invalidating existing installations
+  ---
+  duration_ms: 2.397916
+  type: 'test'
+  ...
+# Subtest: installation recovery rotates credentials, preserves site content and never exposes stored hashes
+ok 14 - installation recovery rotates credentials, preserves site content and never exposes stored hashes
+  ---
+  duration_ms: 1905.993125
+  type: 'test'
+  ...
+# (node:46695) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: retention removes expired closed transcripts, preserves active work and records counts
+ok 15 - retention removes expired closed transcripts, preserves active work and records counts
+  ---
+  duration_ms: 258.274667
+  type: 'test'
+  ...
+# (node:46696) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: password changes revoke every old HTTP session and preserve unrelated users
+ok 16 - password changes revoke every old HTTP session and preserve unrelated users
+  ---
+  duration_ms: 3604.543625
+  type: 'test'
+  ...
+# Subtest: agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+ok 17 - agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+  ---
+  duration_ms: 3647.48625
+  type: 'test'
+  ...
+# (node:46697) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: SQLite migration, rollback, persistence, backup restore and checksum validation
+ok 18 - SQLite migration, rollback, persistence, backup restore and checksum validation
+  ---
+  duration_ms: 1500.332208
+  type: 'test'
+  ...
+# Subtest: failed legacy migration can be retried without losing the source
+ok 19 - failed legacy migration can be retried without losing the source
+  ---
+  duration_ms: 22.846083
+  type: 'test'
+  ...
+# (node:46698) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+ok 20 - input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+  ---
+  duration_ms: 1538.266
+  type: 'test'
+  ...
+# Subtest: offline administrator recovery refuses a locked store and stores only a digest
+ok 21 - offline administrator recovery refuses a locked store and stores only a digest
+  ---
+  duration_ms: 526.714042
+  type: 'test'
+  ...
+# (node:46700) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+ok 22 - selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+  ---
+  duration_ms: 2644.677209
+  type: 'test'
+  ...
+# (node:46701) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: complete governance, isolation, assignment and conversation lifecycle
+ok 23 - complete governance, isolation, assignment and conversation lifecycle
+  ---
+  duration_ms: 1932.169916
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7971.343583

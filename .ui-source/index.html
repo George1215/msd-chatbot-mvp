@@ -1,0 +1,5185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSD Chatbot MVP Preview</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    :root {
+      --msd-blue: #214f8f;
+      --msd-light-blue: #159fd3;
+      --msd-green: #2fd18c;
+      --msd-orange: #ffb020;
+      --msd-red: #ff4d5e;
+
+      --page-bg: #07111a;
+      --page-bg-2: #14202b;
+      --shell-bg: #101720;
+      --panel-bg: #151d27;
+      --card-bg: #1d2733;
+      --card-bg-2: #263240;
+      --header-bg: #202936;
+      --chat-bg: #141b24;
+
+      --text-main: #f1f5f9;
+      --text-muted: #9aa6b2;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: rgba(0, 0, 0, 0.45);
+
+      --white-card: #ffffff;
+      --white-card-text: #1e293b;
+      --white-card-muted: #64748b;
+      --white-card-border: #e8edf3;
+    }
+
+    body.msd-light {
+      --page-bg: #ffffff;
+      --page-bg-2: #ffffff;
+      --shell-bg: #ffffff;
+      --panel-bg: #ffffff;
+      --card-bg: #ffffff;
+      --card-bg-2: #f4f8fc;
+      --header-bg: #ffffff;
+      --chat-bg: #ffffff;
+
+      --text-main: #214f8f;
+      --text-muted: #63768d;
+      --border: rgba(33, 79, 143, 0.18);
+      --shadow: rgba(33, 79, 143, 0.18);
+
+      --white-card: #ffffff;
+      --white-card-text: #214f8f;
+      --white-card-muted: #63768d;
+      --white-card-border: rgba(33, 79, 143, 0.14);
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(21, 159, 211, 0.2), transparent 34%),
+        linear-gradient(135deg, var(--page-bg), var(--page-bg-2));
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    body.msd-light {
+      background: #ffffff;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .demo-bar {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99;
+      background: rgba(15, 22, 31, 0.92);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px;
+      display: flex;
+      gap: 6px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    body.msd-light .demo-bar {
+      background: #ffffff;
+      border-color: rgba(33, 79, 143, 0.22);
+      box-shadow: 0 18px 40px rgba(33, 79, 143, 0.12);
+    }
+
+    .demo-bar button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 13px;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .demo-bar button.active,
+    .demo-bar button:hover {
+      background: var(--msd-light-blue);
+      color: white;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 17px;
+      right: 18px;
+      z-index: 100;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel-bg);
+      color: var(--text-main);
+      padding: 9px 13px;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 12px 28px var(--shadow);
+    }
+
+    body.msd-light .theme-toggle {
+      background: #ffffff;
+      color: var(--msd-blue);
+      border-color: rgba(33, 79, 143, 0.22);
+    }
+
+    /* CUSTOMER CHATBOT */
+
+    .customer-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 70px 20px 20px;
+    }
+
+    .phone-shell {
+      width: 372px;
+      height: 690px;
+      max-width: 100%;
+      max-height: calc(100vh - 92px);
+      background: var(--shell-bg);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 30px 90px var(--shadow);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .customer-home,
+    .customer-chat,
+    .dummy-page {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .customer-home.active,
+    .customer-chat.active,
+    .dummy-page.active {
+      display: flex;
+    }
+
+    .home-top {
+      min-height: 132px;
+      padding: 18px 20px;
+      background:
+        radial-gradient(circle at right center, rgba(21, 159, 211, 0.18), transparent 34%),
+        linear-gradient(180deg, var(--header-bg), var(--shell-bg));
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    body.msd-light .home-top {
+      background: #ffffff;
+    }
+
+    .msd-diamond {
+      position: absolute;
+      right: 32px;
+      top: 38px;
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: var(--msd-light-blue);
+      transform: rotate(45deg);
+      box-shadow: 0 0 20px rgba(21, 159, 211, 0.38);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.msd-light .msd-diamond {
+      background: var(--msd-blue);
+      box-shadow: none;
+    }
+
+    .msd-diamond span {
+      transform: rotate(-45deg);
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .home-greeting {
+      margin-top: 18px;
+      max-width: 235px;
+    }
+
+    .home-greeting h1 {
+      font-size: 24px;
+      line-height: 1.08;
+      margin-bottom: 7px;
+    }
+
+    .home-greeting p {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      line-height: 1.38;
+      font-weight: 700;
+    }
+
+    .home-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 18px 82px;
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .section-row h2 {
+      font-size: 21px;
+    }
+
+    .section-row button {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .language-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 13px;
+      display: grid;
+      gap: 10px;
+    }
+
+    body.msd-light .language-box {
+      background: #ffffff;
+      border-color: rgba(33, 79, 143, 0.2);
+    }
+
+    .language-box-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .language-box-top strong {
+      font-size: 14px;
+    }
+
+    .language-box-top span {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .language-pills {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .language-pills button {
+      border: 1px solid var(--border);
+      background: var(--card-bg-2);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 8px 6px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    body.msd-light .language-pills button {
+      background: #ffffff;
+      color: var(--msd-blue);
+    }
+
+    .language-pills button.active {
+      background: var(--msd-light-blue);
+      color: white;
+      border-color: var(--msd-light-blue);
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .quick-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      color: var(--text-main);
+      text-align: left;
+      padding: 14px;
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: 0.2s ease;
+    }
+
+    .quick-card:hover,
+    .topic-card:hover {
+      background: var(--card-bg-2);
+      transform: translateY(-2px);
+    }
+
+    .quick-card h3 {
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .quick-card .icon {
+      font-size: 22px;
+      color: var(--msd-light-blue);
+      margin-bottom: 9px;
+    }
+
+    .quick-card.small {
+      min-height: 54px;
+      justify-content: center;
+    }
+
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 15px;
+    }
+
+    .progress span:last-child {
+      width: 48px;
+      height: 6px;
+      background: var(--msd-light-blue);
+      border-radius: 999px;
+    }
+
+    .review-text {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
+    /* HOMEPAGE ACTION CARDS */
+
+    .home-action-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin: 18px 0 22px;
+    }
+
+    .home-action-card {
+      width: 100%;
+      border: none;
+      color: var(--text-main);
+      text-align: left;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      min-height: 94px;
+      padding: 15px 16px 15px 15px;
+      display: grid;
+      grid-template-columns: 58px 1fr 22px;
+      gap: 12px;
+      align-items: center;
+      background:
+        linear-gradient(135deg, rgba(21, 159, 211, 0.13), transparent 45%),
+        var(--card-bg);
+      border-radius: 24px 14px 28px 14px;
+      box-shadow:
+        inset 0 0 0 1px var(--border),
+        0 16px 34px rgba(0, 0, 0, 0.18);
+      transition: 0.2s ease;
+    }
+
+    .home-action-card::before {
+      content: "";
+      position: absolute;
+      inset: 8px 8px auto auto;
+      width: 82px;
+      height: 82px;
+      border-radius: 999px;
+      background: rgba(21, 159, 211, 0.08);
+      z-index: -1;
+    }
+
+    .home-action-card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 7px;
+      height: 100%;
+      background: var(--msd-light-blue);
+      border-radius: 24px 0 0 24px;
+    }
+
+    .home-action-card:hover {
+      transform: translateY(-2px);
+      background:
+        linear-gradient(135deg, rgba(21, 159, 211, 0.18), transparent 48%),
+        var(--card-bg-2);
+      box-shadow:
+        inset 0 0 0 1px rgba(21, 159, 211, 0.22),
+        0 20px 38px rgba(0, 0, 0, 0.22);
+    }
+
+    .home-action-card.ai-card {
+      background:
+        linear-gradient(135deg, rgba(255, 176, 32, 0.13), transparent 45%),
+        var(--card-bg);
+      border-radius: 14px 28px 14px 24px;
+    }
+
+    .home-action-card.ai-card::before {
+      background: rgba(255, 176, 32, 0.09);
+    }
+
+    .home-action-card.ai-card::after {
+      background: var(--msd-orange);
+      left: auto;
+      right: 0;
+      border-radius: 0 24px 24px 0;
+    }
+
+    .home-action-card.ai-card:hover {
+      background:
+        linear-gradient(135deg, rgba(255, 176, 32, 0.17), transparent 48%),
+        var(--card-bg-2);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 176, 32, 0.24),
+        0 20px 38px rgba(0, 0, 0, 0.22);
+    }
+
+    .home-action-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px 18px 22px 12px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 35%),
+        rgba(21, 159, 211, 0.18);
+      border: 1px solid rgba(21, 159, 211, 0.34);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--msd-light-blue);
+      font-size: 25px;
+      font-weight: 900;
+      box-shadow: inset 0 0 18px rgba(21, 159, 211, 0.08);
+    }
+
+    .home-action-icon.ai {
+      border-radius: 18px 12px 18px 24px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.15), transparent 35%),
+        rgba(255, 176, 32, 0.18);
+      border-color: rgba(255, 176, 32, 0.35);
+      color: var(--msd-orange);
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    .home-action-text {
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .home-action-text strong {
+      display: block;
+      font-size: 15.5px;
+      line-height: 1.15;
+      margin-bottom: 5px;
+    }
+
+    .home-action-text span {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.35;
+      display: block;
+    }
+
+    .home-action-arrow {
+      width: 22px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 25px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .phase-pill {
+      display: inline-flex;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 176, 32, 0.12);
+      border: 1px solid rgba(255, 176, 32, 0.28);
+      color: var(--msd-orange);
+      font-size: 10px;
+      font-style: normal;
+      font-weight: 900;
+      width: fit-content;
+    }
+
+    body.msd-light .home-action-card {
+      background:
+        linear-gradient(135deg, rgba(21, 159, 211, 0.09), transparent 45%),
+        #ffffff;
+      box-shadow:
+        inset 0 0 0 1px rgba(33, 79, 143, 0.16),
+        0 14px 28px rgba(33, 79, 143, 0.09);
+    }
+
+    body.msd-light .home-action-card.ai-card {
+      background:
+        linear-gradient(135deg, rgba(255, 176, 32, 0.11), transparent 45%),
+        #ffffff;
+    }
+
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 11px;
+    }
+
+    .topic-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      min-height: 78px;
+      color: var(--text-main);
+      padding: 10px 7px;
+      text-align: center;
+      transition: 0.2s ease;
+    }
+
+    .topic-card .topic-icon {
+      color: var(--msd-light-blue);
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+
+    .topic-card span {
+      font-size: 12px;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .floating-chat-btn {
+      position: absolute;
+      right: 22px;
+      bottom: 22px;
+      width: 56px;
+      height: 56px;
+      border-radius: 19px;
+      border: none;
+      background: var(--msd-light-blue);
+      color: white;
+      box-shadow: 0 20px 40px rgba(21, 159, 211, 0.35);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flat-chat-icon {
+      width: 28px;
+      height: 22px;
+      border: 3px solid #ffffff;
+      border-radius: 8px;
+      position: relative;
+      display: block;
+    }
+
+    .flat-chat-icon::after {
+      content: "";
+      position: absolute;
+      right: 4px;
+      bottom: -8px;
+      width: 10px;
+      height: 10px;
+      background: var(--msd-light-blue);
+      border-right: 3px solid #ffffff;
+      border-bottom: 3px solid #ffffff;
+      transform: rotate(35deg);
+      border-bottom-right-radius: 3px;
+    }
+
+    .flat-chat-icon::before {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 7px;
+      width: 4px;
+      height: 4px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 7px 0 0 #ffffff, 14px 0 0 #ffffff;
+    }
+
+    /* CUSTOMER CHAT */
+
+    .chat-header {
+      height: 68px;
+      flex-shrink: 0;
+      background: var(--header-bg);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .chat-header button {
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .chat-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: var(--msd-light-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      text-transform: lowercase;
+      flex-shrink: 0;
+    }
+
+    .chat-logo.ai-logo {
+      background: var(--msd-orange);
+      color: #111827;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .chat-title {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-title h2 {
+      font-size: 18px;
+      line-height: 1.1;
+    }
+
+    .chat-title p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .chat-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      background: var(--chat-bg);
+      padding: 16px 16px 118px;
+      position: relative;
+    }
+
+    .history-btn {
+      display: block;
+      margin: 6px auto 18px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .message {
+      display: flex;
+      margin-bottom: 12px;
+    }
+
+    .message.bot,
+    .message.ai {
+      justify-content: flex-start;
+    }
+
+    .message.user {
+      justify-content: flex-end;
+    }
+
+    .bubble {
+      max-width: 86%;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .bot .bubble {
+      background: var(--card-bg-2);
+      border-bottom-left-radius: 5px;
+      border: 1px solid var(--border);
+    }
+
+    .user .bubble {
+      background: #28476c;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    body.msd-light .user .bubble {
+      background: var(--msd-blue);
+    }
+
+    .message.ai .bubble {
+      background: rgba(255, 176, 32, 0.11);
+      border: 1px solid rgba(255, 176, 32, 0.28);
+      border-bottom-left-radius: 5px;
+      color: var(--text-main);
+    }
+
+    .ai-label {
+      display: inline-flex;
+      margin-bottom: 7px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 176, 32, 0.13);
+      border: 1px solid rgba(255, 176, 32, 0.28);
+      color: var(--msd-orange);
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .ai-mode-banner {
+      background: rgba(255, 176, 32, 0.12);
+      border: 1px solid rgba(255, 176, 32, 0.3);
+      color: var(--msd-orange);
+      border-radius: 16px;
+      padding: 12px;
+      margin: 0 0 14px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ai-mode-banner strong {
+      display: block;
+      color: var(--msd-orange);
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .answer-card,
+    .related-card,
+    .looking-card {
+      background: var(--card-bg-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      margin: 15px 0;
+      font-size: 14px;
+      line-height: 1.42;
+    }
+
+    .answer-card strong,
+    .related-card strong,
+    .looking-card strong {
+      display: block;
+      font-size: 14.5px;
+      margin-bottom: 7px;
+    }
+
+    .answer-card button {
+      border: none;
+      background: transparent;
+      color: var(--msd-light-blue);
+      font-size: 14px;
+      font-weight: 900;
+      margin-top: 7px;
+    }
+
+    .related-item,
+    .looking-item {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-main);
+      text-align: left;
+      padding: 12px 0;
+      font-size: 14px;
+      line-height: 1.35;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .related-item span,
+    .looking-item span {
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    .related-view-more {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      width: 100%;
+      padding: 10px 0 2px;
+      font-size: 14px;
+    }
+
+    .ticket-card-chat {
+      background: rgba(21, 159, 211, 0.12);
+      border: 1px solid rgba(21, 159, 211, 0.28);
+      border-radius: 15px;
+      padding: 13px;
+      margin: 14px 0;
+    }
+
+    .ticket-card-chat h3 {
+      color: var(--msd-light-blue);
+      font-size: 14.5px;
+      margin-bottom: 6px;
+    }
+
+    .ticket-card-chat p {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      margin-top: 9px;
+      padding: 6px 10px;
+      background: rgba(47, 209, 140, 0.12);
+      border: 1px solid rgba(47, 209, 140, 0.25);
+      border-radius: 999px;
+      color: var(--msd-green);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .typing {
+      display: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 6px 0 13px 4px;
+    }
+
+    .typing.show {
+      display: block;
+    }
+
+    .chat-composer-wrap {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 11px 14px 14px;
+      background: linear-gradient(180deg, transparent, var(--chat-bg) 20%, var(--chat-bg));
+      z-index: 30;
+    }
+
+    body.msd-light .chat-composer-wrap {
+      background: #ffffff;
+      border-top: 1px solid rgba(33, 79, 143, 0.1);
+    }
+
+    .chat-composer {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+    }
+
+    .plus-btn {
+      width: 39px;
+      height: 39px;
+      min-width: 39px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-size: 24px;
+    }
+
+    .chat-input {
+      flex: 1;
+      height: 42px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 21px;
+      padding: 0 15px;
+      font-size: 13.5px;
+    }
+
+    .send-btn {
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      border: none;
+      border-radius: 50%;
+      background: var(--msd-light-blue);
+      color: white;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    body.ai-mode .send-btn {
+      background: var(--msd-orange);
+      color: #111827;
+    }
+
+    .suggestion-panel {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 70px;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      display: none;
+      z-index: 20;
+      box-shadow: 0 -10px 35px var(--shadow);
+    }
+
+    .suggestion-panel.open {
+      display: block;
+    }
+
+    .suggestion-header {
+      padding: 11px 13px;
+      color: var(--text-muted);
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .suggestion-header button {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+
+    .suggestion-list {
+      max-height: 195px;
+      overflow-y: auto;
+    }
+
+    .suggestion-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+      text-align: left;
+      padding: 12px 13px;
+      font-size: 13px;
+      line-height: 1.35;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .suggestion-item:hover {
+      background: rgba(21, 159, 211, 0.12);
+    }
+
+    .suggestion-icon {
+      color: var(--msd-light-blue);
+      font-size: 16px;
+      margin-top: 1px;
+    }
+
+    .suggestion-text small {
+      display: block;
+      color: var(--text-muted);
+      margin-top: 3px;
+      font-size: 11px;
+    }
+
+    .tool-drawer {
+      display: none;
+      padding-top: 14px;
+      gap: 12px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .tool-drawer.open {
+      display: grid;
+    }
+
+    .drawer-tool {
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      text-align: center;
+    }
+
+    .drawer-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--msd-light-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 7px;
+      font-size: 19px;
+    }
+
+    .drawer-tool span {
+      font-size: 11px;
+    }
+
+    /* DUMMY PAGES */
+
+    .dummy-page {
+      background: var(--shell-bg);
+      color: var(--text-main);
+    }
+
+    .dummy-header {
+      height: 66px;
+      flex-shrink: 0;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+
+    .dummy-header button {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .dummy-header h2 {
+      font-size: 17px;
+      line-height: 1.1;
+    }
+
+    .dummy-header p {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    .dummy-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px 28px;
+    }
+
+    .dummy-hero {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      display: flex;
+      gap: 13px;
+      align-items: center;
+    }
+
+    .dummy-icon {
+      width: 58px;
+      height: 58px;
+      min-width: 58px;
+      border-radius: 18px;
+      background: var(--msd-light-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .dummy-hero h1 {
+      font-size: 21px;
+      margin-bottom: 5px;
+      line-height: 1.12;
+    }
+
+    .dummy-hero p {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+
+    .dummy-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .dummy-stat {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 12px 9px;
+    }
+
+    .dummy-stat strong {
+      display: block;
+      font-size: 16px;
+      color: var(--msd-light-blue);
+      margin-bottom: 4px;
+    }
+
+    .dummy-stat span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      line-height: 1.25;
+    }
+
+    .dummy-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .dummy-section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 11px;
+    }
+
+    .dummy-section-title h3 {
+      font-size: 15px;
+    }
+
+    .dummy-section-title span {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .dummy-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dummy-row {
+      background: var(--card-bg-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .dummy-row-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 7px;
+    }
+
+    .dummy-row-top strong {
+      font-size: 13.5px;
+      line-height: 1.25;
+    }
+
+    .dummy-row-top span {
+      color: var(--text-muted);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .dummy-row p {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .dummy-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 9px;
+    }
+
+    .dummy-pill {
+      display: inline-flex;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(21, 159, 211, 0.12);
+      border: 1px solid rgba(21, 159, 211, 0.22);
+      color: var(--msd-light-blue);
+      font-size: 10.5px;
+      font-weight: 900;
+    }
+
+    .dummy-pill.green {
+      color: var(--msd-green);
+      background: rgba(47, 209, 140, 0.12);
+      border-color: rgba(47, 209, 140, 0.22);
+    }
+
+    .dummy-pill.orange {
+      color: var(--msd-orange);
+      background: rgba(255, 176, 32, 0.12);
+      border-color: rgba(255, 176, 32, 0.22);
+    }
+
+    .dummy-timeline {
+      display: grid;
+      gap: 0;
+    }
+
+    .dummy-step {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      padding-bottom: 12px;
+      position: relative;
+    }
+
+    .dummy-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 24px;
+      bottom: 0;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .dummy-step-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--msd-light-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      position: relative;
+      z-index: 2;
+    }
+
+    .dummy-step-body strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .dummy-step-body span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      line-height: 1.35;
+    }
+
+    .ticket-form-preview {
+      display: grid;
+      gap: 10px;
+    }
+
+    .ticket-form-field {
+      background: var(--card-bg-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .ticket-form-field label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .ticket-form-field div {
+      color: var(--text-main);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .dummy-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .dummy-primary,
+    .dummy-secondary {
+      width: 100%;
+      height: 44px;
+      border: none;
+      border-radius: 15px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .dummy-primary {
+      background: var(--msd-light-blue);
+      color: white;
+    }
+
+    .dummy-secondary {
+      background: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    /* LOGIN */
+
+    .login-screen {
+      align-items: center;
+      justify-content: center;
+      padding: 72px 20px 20px;
+    }
+
+    .login-card {
+      width: 395px;
+      max-width: 100%;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 30px 90px var(--shadow);
+    }
+
+    .login-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 17px;
+      background: var(--msd-light-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 900;
+      text-transform: lowercase;
+      margin-bottom: 18px;
+    }
+
+    .login-card h1 {
+      font-size: 25px;
+      margin-bottom: 7px;
+    }
+
+    .login-card p {
+      color: var(--text-muted);
+      line-height: 1.45;
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    .field {
+      margin-bottom: 13px;
+    }
+
+    .field label {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 46px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--shell-bg);
+      color: var(--text-main);
+      padding: 0 14px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .login-button {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 14px;
+      background: var(--msd-light-blue);
+      color: white;
+      font-weight: 900;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    .login-note {
+      margin-top: 15px;
+      background: rgba(21, 159, 211, 0.1);
+      border: 1px solid rgba(21, 159, 211, 0.25);
+      color: var(--text-muted);
+      padding: 12px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    /* AGENT */
+
+    .agent-screen {
+      flex-direction: column;
+      padding: 72px 18px 18px;
+    }
+
+    .agent-shell {
+      width: 100%;
+      height: 100%;
+      background: var(--shell-bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      box-shadow: 0 30px 90px var(--shadow);
+      min-height: 0;
+    }
+
+    .agent-sidebar {
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .agent-main {
+      background: var(--shell-bg);
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .agent-top {
+      height: 68px;
+      padding: 13px 15px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .agent-title h1 {
+      font-size: 19px;
+      margin-bottom: 3px;
+    }
+
+    .agent-title p {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .capacity-pill {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(21, 159, 211, 0.13);
+      border: 1px solid rgba(21, 159, 211, 0.3);
+      color: var(--msd-light-blue);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .inbox-search {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .inbox-search input {
+      width: 100%;
+      height: 40px;
+      border: 1px solid var(--border);
+      outline: none;
+      border-radius: 13px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      padding: 0 13px;
+      font-size: 13px;
+    }
+
+    .inbox-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      padding: 0 12px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .inbox-tabs button {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--card-bg);
+      color: var(--text-muted);
+      padding: 8px 6px;
+      font-size: 10.5px;
+      font-weight: 900;
+    }
+
+    .inbox-tabs button.active,
+    .inbox-tabs button:hover {
+      background: var(--msd-light-blue);
+      color: white;
+      border-color: var(--msd-light-blue);
+    }
+
+    .ticket-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      background: #f7f9fc;
+    }
+
+    .ticket-chat-row {
+      width: 100%;
+      min-height: 78px;
+      border: none;
+      border-bottom: 1px solid var(--white-card-border);
+      background: var(--white-card);
+      color: var(--white-card-text);
+      padding: 10px 10px;
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      gap: 10px;
+      transition: 0.18s ease;
+      text-align: left;
+    }
+
+    .ticket-chat-row:hover,
+    .ticket-chat-row.active {
+      background: #eef8fd;
+    }
+
+    .ticket-chat-row.active {
+      border-left: 4px solid var(--msd-light-blue);
+      padding-left: 6px;
+    }
+
+    .inbox-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: var(--msd-light-blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 17px;
+      margin-top: 2px;
+      position: relative;
+    }
+
+    .inbox-avatar::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      bottom: -1px;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: var(--msd-green);
+    }
+
+    .inbox-middle {
+      min-width: 0;
+    }
+
+    .inbox-name-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+    }
+
+    .inbox-name {
+      font-size: 13.5px;
+      font-weight: 900;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inbox-channel,
+    .inbox-preview,
+    .inbox-ticket-id,
+    .inbox-region,
+    .inbox-time {
+      color: #64748b;
+    }
+
+    .inbox-channel {
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+
+    .inbox-subject {
+      font-size: 12.8px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inbox-preview {
+      font-size: 12px;
+      line-height: 1.28;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .inbox-meta-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .inbox-ticket-id,
+    .inbox-region {
+      font-size: 10.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inbox-dot {
+      color: #94a3b8;
+      font-size: 10px;
+    }
+
+    .inbox-side {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 5px;
+      min-width: 62px;
+    }
+
+    .inbox-time {
+      font-size: 11px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    .inbox-priority {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .inbox-priority.high {
+      color: #b42318;
+      background: #ffe7e7;
+    }
+
+    .inbox-priority.medium {
+      color: #9a6700;
+      background: #fff4cc;
+    }
+
+    .inbox-priority.low {
+      color: #127a3c;
+      background: #e5f8ed;
+    }
+
+    .inbox-status {
+      color: var(--msd-light-blue);
+      font-size: 10.5px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .empty-chat {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 28px;
+    }
+
+    .empty-chat h2 {
+      color: var(--msd-light-blue);
+      margin-bottom: 7px;
+      font-size: 21px;
+    }
+
+    .conversation-top {
+      min-height: 68px;
+      padding: 13px 17px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex: 0 0 auto;
+    }
+
+    .selected-title {
+      min-width: 0;
+    }
+
+    .selected-title h2 {
+      font-size: 18px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .selected-title p {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .ticket-actions {
+      display: flex;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+
+    .ticket-actions button {
+      border: none;
+      border-radius: 11px;
+      padding: 9px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      color: white;
+    }
+
+    .ticket-actions button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .accept {
+      background: var(--msd-light-blue);
+    }
+
+    .resolve {
+      background: var(--msd-green);
+    }
+
+    .transfer {
+      background: var(--card-bg-2);
+      color: var(--text-main) !important;
+      border: 1px solid var(--border) !important;
+    }
+
+    .conversation-area {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 280px;
+    }
+
+    .agent-chat {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      height: 100%;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+    }
+
+    .agent-chat-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 18px 18px 20px;
+      background: var(--shell-bg);
+    }
+
+    .agent-message {
+      display: flex;
+      margin-bottom: 12px;
+    }
+
+    .agent-message.customer {
+      justify-content: flex-start;
+    }
+
+    .agent-message.agent {
+      justify-content: flex-end;
+    }
+
+    .agent-bubble-wrap {
+      max-width: 74%;
+    }
+
+    .agent-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--text-muted);
+      margin: 0 0 4px 4px;
+    }
+
+    .agent-message.agent .agent-label {
+      text-align: right;
+      margin: 0 4px 4px 0;
+      color: var(--msd-light-blue);
+    }
+
+    .agent-bubble {
+      padding: 11px 13px;
+      border-radius: 15px;
+      font-size: 13.5px;
+      line-height: 1.42;
+    }
+
+    .customer .agent-bubble {
+      background: var(--card-bg-2);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 5px;
+    }
+
+    .agent .agent-bubble {
+      background: #28476c;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    body.msd-light .agent .agent-bubble {
+      background: var(--msd-blue);
+    }
+
+    .agent-bubble small {
+      display: block;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      margin-top: 6px;
+    }
+
+    .agent .agent-bubble small {
+      color: rgba(255, 255, 255, 0.66);
+    }
+
+    /* OLD AGENT SMILEY / ATTACHMENT SECTION RESTORED */
+
+    .attachment-card {
+      margin-top: 4px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .attachment-file {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    .attachment-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(21,159,211,0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--msd-light-blue);
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .attachment-info b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .attachment-info span {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .agent .attachment-info span {
+      color: rgba(255,255,255,0.72);
+    }
+
+    .attachment-image {
+      height: 150px;
+      background: var(--msd-light-blue);
+      display: flex;
+      align-items: end;
+      padding: 12px;
+      font-weight: 900;
+      color: white;
+    }
+
+    .attachment-video {
+      height: 150px;
+      background: #214f8f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: white;
+    }
+
+    .attachment-link {
+      padding: 12px;
+      border-left: 4px solid var(--msd-light-blue);
+    }
+
+    .attachment-link b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .attachment-link span {
+      color: #8de0ff;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .agent-reply {
+      flex: 0 0 68px;
+      min-height: 68px;
+      height: 68px;
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      background: var(--chat-bg);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 5;
+      position: relative;
+    }
+
+    .agent-reply.locked {
+      height: auto;
+      min-height: 68px;
+      flex: 0 0 auto;
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+    }
+
+    .agent-reply input {
+      flex: 1;
+      border: 1px solid var(--border);
+      outline: none;
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 0 14px;
+      font-size: 13.5px;
+      height: 42px;
+    }
+
+    .agent-reply button.send-agent-btn {
+      border: none;
+      background: var(--msd-light-blue);
+      color: white;
+      border-radius: 14px;
+      padding: 0 16px;
+      height: 42px;
+      font-weight: 900;
+    }
+
+    .agent-tool-wrap {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .agent-tool-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--card-bg);
+      color: var(--msd-light-blue);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .agent-tool-menu {
+      position: absolute;
+      left: 0;
+      bottom: 52px;
+      width: 320px;
+      max-height: 430px;
+      overflow-y: auto;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px var(--shadow);
+      padding: 10px;
+      display: none;
+      z-index: 40;
+    }
+
+    .agent-tool-menu.open {
+      display: block;
+    }
+
+    .agent-tool-head {
+      padding: 5px 5px 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .agent-tool-head strong {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .agent-tool-head span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .agent-tool-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .agent-tool-option {
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 10px 6px;
+      min-height: 68px;
+      display: grid;
+      place-items: center;
+      gap: 5px;
+      text-align: center;
+    }
+
+    .agent-tool-option:hover,
+    .agent-tool-option.active {
+      background: rgba(21,159,211,0.12);
+      border-color: rgba(21,159,211,0.35);
+    }
+
+    .agent-tool-option .tool-icon {
+      color: var(--msd-light-blue);
+      font-size: 20px;
+    }
+
+    .agent-tool-option span {
+      font-size: 10.5px;
+      font-weight: 800;
+    }
+
+    .agent-tool-section {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+
+    .agent-tool-section.open {
+      display: block;
+    }
+
+    .quick-action-item {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      text-align: left;
+      padding: 10px 8px;
+      border-radius: 11px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .quick-action-item:hover {
+      background: rgba(21,159,211,0.13);
+    }
+
+    .quick-action-item b {
+      font-size: 12.5px;
+      color: var(--msd-light-blue);
+    }
+
+    .quick-action-item small {
+      font-size: 11.5px;
+      line-height: 1.35;
+      color: var(--text-muted);
+    }
+
+    .tool-mini-form {
+      display: grid;
+      gap: 8px;
+      padding: 4px;
+    }
+
+    .tool-mini-form input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--border);
+      outline: none;
+      border-radius: 12px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      padding: 0 11px;
+      font-size: 12.5px;
+    }
+
+    .tool-mini-form button {
+      border: none;
+      background: var(--msd-light-blue);
+      color: white;
+      border-radius: 12px;
+      height: 38px;
+      font-weight: 900;
+    }
+
+    .info-panel {
+      background: var(--panel-bg);
+      padding: 14px;
+      overflow-y: auto;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .info-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .info-card h3 {
+      color: var(--msd-light-blue);
+      font-size: 13.5px;
+      margin-bottom: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 12px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .info-row span:last-child {
+      text-align: right;
+      font-weight: 800;
+    }
+
+    .timeline-item {
+      border-left: 3px solid var(--msd-light-blue);
+      padding-left: 9px;
+      margin-bottom: 10px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .timeline-item b {
+      display: block;
+      color: var(--text-main);
+      margin-bottom: 3px;
+    }
+
+    /* TRANSFER MODAL */
+
+    .transfer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.62);
+      z-index: 120;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .transfer-overlay.open {
+      display: flex;
+    }
+
+    .transfer-modal {
+      width: 420px;
+      max-width: 100%;
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 25px 80px var(--shadow);
+    }
+
+    .transfer-modal h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .transfer-modal p {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 15px;
+    }
+
+    .agent-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .agent-chip {
+      border: 1px solid rgba(21, 159, 211, 0.3);
+      background: rgba(21, 159, 211, 0.12);
+      color: var(--text-main);
+      padding: 9px 11px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .agent-chip:hover,
+    .agent-chip.selected {
+      background: var(--msd-light-blue);
+      color: white;
+    }
+
+    .transfer-input {
+      width: 100%;
+      height: 44px;
+      border: 1px solid var(--border);
+      outline: none;
+      border-radius: 14px;
+      background: var(--card-bg);
+      color: var(--text-main);
+      padding: 0 14px;
+      font-size: 14px;
+      margin-bottom: 14px;
+    }
+
+    .transfer-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .transfer-actions button {
+      border: none;
+      border-radius: 13px;
+      padding: 11px 14px;
+      color: white;
+      font-weight: 900;
+    }
+
+    .cancel-transfer {
+      background: var(--card-bg-2);
+      color: var(--text-main) !important;
+      border: 1px solid var(--border) !important;
+    }
+
+    .confirm-transfer {
+      background: var(--msd-light-blue);
+    }
+
+    /* ABOUT */
+
+    .about-screen {
+      padding: 76px 22px 22px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .about-screen.active {
+      display: block;
+    }
+
+    .about-wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      background: var(--shell-bg);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: 0 30px 90px var(--shadow);
+      overflow: hidden;
+    }
+
+    .about-hero {
+      padding: 38px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    body.msd-light .about-hero {
+      background: #ffffff;
+    }
+
+    .about-badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 13px;
+      border-radius: 999px;
+      background: rgba(21, 159, 211, 0.14);
+      border: 1px solid rgba(21, 159, 211, 0.28);
+      color: var(--msd-light-blue);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .about-hero h1 {
+      font-size: 42px;
+      line-height: 1.04;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+
+    .about-hero p {
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1.65;
+      max-width: 780px;
+    }
+
+    .about-content {
+      padding: 28px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .about-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .about-card .icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(21, 159, 211, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--msd-light-blue);
+      font-size: 22px;
+      margin-bottom: 13px;
+    }
+
+    .about-card h3 {
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .about-card p {
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+
+    .credits {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      margin-top: 18px;
+    }
+
+    .credits h2 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .credits p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .name-line {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .name-pill {
+      background: var(--msd-light-blue);
+      color: white;
+      padding: 9px 13px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1050px) {
+      .agent-shell {
+        grid-template-columns: 350px 1fr;
+      }
+
+      .conversation-area {
+        grid-template-columns: 1fr;
+      }
+
+      .info-panel {
+        display: none;
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: 100vh;
+      }
+
+      .demo-bar {
+        top: 8px;
+        width: calc(100% - 16px);
+        justify-content: center;
+        overflow-x: auto;
+        border-radius: 18px;
+      }
+
+      .demo-bar button {
+        padding: 7px 8px;
+        font-size: 10.5px;
+      }
+
+      .theme-toggle {
+        top: 58px;
+        right: 10px;
+        padding: 7px 10px;
+      }
+
+      .customer-screen,
+      .login-screen,
+      .agent-screen {
+        padding: 96px 0 0;
+        min-height: 100vh;
+      }
+
+      .about-screen {
+        padding: 100px 10px 16px;
+      }
+
+      .phone-shell {
+        width: 100%;
+        height: calc(100vh - 96px);
+        max-height: none;
+        border-radius: 0;
+      }
+
+      .login-card {
+        width: 100%;
+        min-height: calc(100vh - 96px);
+        border-radius: 0;
+      }
+
+      .agent-screen {
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 0;
+      }
+
+      .agent-shell {
+        height: calc(100vh - 96px);
+        border-radius: 0;
+        grid-template-columns: 1fr;
+      }
+
+      .agent-main {
+        display: none;
+      }
+
+      .agent-shell.mobile-open .agent-sidebar {
+        display: none;
+      }
+
+      .agent-shell.mobile-open .agent-main {
+        display: flex;
+      }
+
+      .conversation-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .conversation-area {
+        grid-template-columns: 1fr;
+      }
+
+      .agent-bubble-wrap {
+        max-width: 88%;
+      }
+
+      .agent-tool-menu {
+        width: 292px;
+      }
+
+      .topics-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .tool-drawer.open {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .about-hero {
+        padding: 24px;
+      }
+
+      .about-hero h1 {
+        font-size: 32px;
+      }
+
+      .about-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="msd-dark">
+  <div class="app">
+    <div class="demo-bar">
+      <button id="customerBtn" class="active" onclick="showScreen('customer')">Customer Chatbot</button>
+      <button id="loginBtn" onclick="showScreen('login')">Fake Agent Login</button>
+      <button id="agentBtn" onclick="showScreen('agent')">Agent Inbox</button>
+      <button id="aboutBtn" onclick="showScreen('about')">About MVP</button>
+    </div>
+
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">MSD Light</button>
+
+    <section class="screen customer-screen active" id="customerScreen">
+      <div class="phone-shell">
+        <div class="customer-home active" id="customerHome">
+          <div class="home-top">
+            <div class="msd-diamond">
+              <span>msd</span>
+            </div>
+
+            <div class="home-greeting">
+              <h1 id="homeTitle">Hi MSD Customer</h1>
+              <p id="homeSubtitle">Get quick support for orders, delivery, zonal contacts, GePG guidance, and complaints.</p>
+            </div>
+          </div>
+
+          <div class="home-content">
+            <div class="section-row">
+              <h2 id="quickAccessTitle">Quick Access</h2>
+              <button onclick="openDummyPage('tools')" id="moreToolsBtn">More tools ›</button>
+            </div>
+
+            <div class="language-box">
+              <div class="language-box-top">
+                <strong id="languageTitle">Language</strong>
+                <span id="languageHint">Choose how you want support</span>
+              </div>
+
+              <div class="language-pills">
+                <button id="lang-en" class="active" onclick="setLanguage('en')">English</button>
+                <button id="lang-sw" onclick="setLanguage('sw')">Kiswahili</button>
+                <button id="lang-fr" onclick="setLanguage('fr')">Français</button>
+              </div>
+            </div>
+
+            <div class="quick-grid">
+              <button class="quick-card" onclick="openDummyPage('order')">
+                <div>
+                  <div class="icon">📦</div>
+                  <h3 id="orderStatusCard">Order Status</h3>
+                </div>
+
+                <div>
+                  <div class="progress">
+                    <span>2/2</span>
+                    <span></span>
+                  </div>
+                  <div class="review-text" id="reviewText">Review</div>
+                </div>
+              </button>
+
+              <div>
+                <button class="quick-card small" onclick="openDummyPage('zonal')">
+                  <div class="icon">☎</div>
+                  <h3 id="zonalContactsCard">Zonal Contacts</h3>
+                </button>
+
+                <button class="quick-card small" style="margin-top:12px;" onclick="openDummyPage('tickets')">
+                  <h3><span id="myTicketsCard">My Tickets</span> <span style="color:var(--msd-light-blue); float:right;">3 ›</span></h3>
+                </button>
+              </div>
+            </div>
+
+            <div class="home-action-grid">
+              <button class="home-action-card ticket-card-shape" onclick="openDummyPage('new-ticket')">
+                <div class="home-action-icon">＋</div>
+                <div class="home-action-text">
+                  <strong>Open New Ticket</strong>
+                  <span>Start a fresh support request for a different issue.</span>
+                </div>
+                <div class="home-action-arrow">›</div>
+              </button>
+
+              <button class="home-action-card ai-card" onclick="openMediAssistAI()">
+                <div class="home-action-icon ai">AI</div>
+                <div class="home-action-text">
+                  <strong>Speak with MediAssist AI</strong>
+                  <span>AI assistant that will help answer MSD service questions instantly.</span>
+                  <em class="phase-pill">Coming in Phase Two</em>
+                </div>
+                <div class="home-action-arrow">›</div>
+              </button>
+            </div>
+
+            <div class="section-row">
+              <h2 id="topicsTitle">Topics</h2>
+              <button onclick="openChatWithTopic(t('allTopics'))" id="viewAllBtn">View all ›</button>
+            </div>
+
+            <div class="topics-grid">
+              <button class="topic-card" onclick="openChatWithTopic(t('msdServices'))">
+                <div class="topic-icon">🏥</div>
+                <span id="servicesTopic">MSD Services</span>
+              </button>
+
+              <button class="topic-card" onclick="openChatWithTopic(t('orderGuidance'))">
+                <div class="topic-icon">🧾</div>
+                <span id="orderGuidanceTopic">Order Guidance</span>
+              </button>
+
+              <button class="topic-card" onclick="openChatWithTopic(t('zonalContacts'))">
+                <div class="topic-icon">📍</div>
+                <span id="zonalTopic">Zonal Contacts</span>
+              </button>
+
+              <button class="topic-card" onclick="openChatWithTopic(t('gepg'))">
+                <div class="topic-icon">💳</div>
+                <span id="gepgTopic">GePG</span>
+              </button>
+
+              <button class="topic-card" onclick="openChatWithTopic(t('complaints'))">
+                <div class="topic-icon">⚠</div>
+                <span id="complaintsTopic">Complaints</span>
+              </button>
+
+              <button class="topic-card" onclick="openChatWithTopic(t('feedback'))">
+                <div class="topic-icon">⭐</div>
+                <span id="feedbackTopic">Feedback</span>
+              </button>
+            </div>
+          </div>
+
+          <button class="floating-chat-btn" onclick="openCustomerChat()" aria-label="Open chat">
+            <span class="flat-chat-icon"></span>
+          </button>
+        </div>
+
+        <div class="customer-chat" id="customerChat">
+          <div class="chat-header">
+            <button onclick="goCustomerHome()">‹</button>
+
+            <div class="chat-logo" id="chatLogo">msd</div>
+
+            <div class="chat-title">
+              <h2 id="chatSupportTitle">MSD Support</h2>
+              <p id="chatSupportSubtitle">Case ID #163076203</p>
+            </div>
+
+            <button onclick="endCustomerSession()">⏻</button>
+            <button>↗</button>
+          </div>
+
+          <div class="chat-body" id="customerChatBody">
+            <button class="history-btn" onclick="loadCustomerHistory()" id="historyBtn">↑ View Chat History</button>
+
+            <div class="message bot">
+              <div class="bubble" id="welcomeBubble">👋 Thanks for contacting MSD Support. How can we help you?</div>
+            </div>
+
+            <div class="answer-card" id="initialFaqCard">
+              <strong id="faqTitle">Frequently asked questions on MSD Customer Service</strong>
+              <button onclick="showOriginalFaq()" id="seeOriginalBtn">See Original</button>
+            </div>
+
+            <div class="typing" id="customerTyping">MSD Support is typing...</div>
+          </div>
+
+          <div class="chat-composer-wrap">
+            <div class="suggestion-panel" id="suggestionPanel">
+              <div class="suggestion-header">
+                <span id="suggestedTopicsLabel">Suggested topics</span>
+                <button onclick="closeSuggestions()">×</button>
+              </div>
+              <div class="suggestion-list" id="suggestionList"></div>
+            </div>
+
+            <div class="chat-composer">
+              <button class="plus-btn" id="customerPlusBtn" onclick="toggleCustomerTools()">+</button>
+
+              <input
+                class="chat-input"
+                id="customerInput"
+                type="text"
+                placeholder="Enter question here"
+                oninput="handleCustomerSearch()"
+                onkeydown="handleCustomerEnter(event)"
+              />
+
+              <button class="send-btn" onclick="sendCustomerMessage()">➤</button>
+            </div>
+
+            <div class="tool-drawer" id="customerToolDrawer">
+              <button class="drawer-tool" onclick="customerQuickTool(t('faqs'))">
+                <div class="drawer-icon">?</div>
+                <span id="drawerFaqs">FAQs</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('selfService'))">
+                <div class="drawer-icon">🤝</div>
+                <span id="drawerSelfService">Self Service</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('orders'))">
+                <div class="drawer-icon">▤</div>
+                <span id="drawerOrders">Orders</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('contacts'))">
+                <div class="drawer-icon">☎</div>
+                <span id="drawerContacts">Contacts</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('files'))">
+                <div class="drawer-icon">▣</div>
+                <span id="drawerFiles">Files</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('escalate'))">
+                <div class="drawer-icon">⚠</div>
+                <span id="drawerEscalate">Escalate</span>
+              </button>
+
+              <button class="drawer-tool" onclick="customerQuickTool(t('feedback'))">
+                <div class="drawer-icon">★</div>
+                <span id="drawerFeedback">Feedback</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dummy-page" id="dummyPage">
+          <div class="dummy-header">
+            <button onclick="goDummyBack()">‹</button>
+            <div>
+              <h2 id="dummyTitle">MSD Service</h2>
+              <p id="dummySubtitle">Preview page</p>
+            </div>
+          </div>
+
+          <div class="dummy-content" id="dummyContent"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen login-screen" id="loginScreen">
+      <div class="login-card">
+        <div class="login-logo">msd</div>
+
+        <h1>Agent Login</h1>
+        <p>This is a fake login for preview. Click login to open the customer support agent side.</p>
+
+        <div class="field">
+          <label>Email</label>
+          <input type="text" value="agent@msd.go.tz">
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <input type="password" value="password123">
+        </div>
+
+        <button class="login-button" onclick="fakeLogin()">Login as Support Agent</button>
+
+        <div class="login-note">
+          Demo rule: one support agent can handle maximum 5 active clients/tickets at the same time.
+        </div>
+      </div>
+    </section>
+
+    <section class="screen agent-screen" id="agentScreen">
+      <div class="agent-shell" id="agentShell">
+        <aside class="agent-sidebar">
+          <div class="agent-top">
+            <div class="agent-title">
+              <h1>Support Inbox</h1>
+              <p>Incoming chats and chatbot escalations</p>
+            </div>
+
+            <div class="capacity-pill" id="capacityPill">0/5 Active</div>
+          </div>
+
+          <div class="inbox-search">
+            <input id="ticketSearch" type="text" placeholder="Search customer, ticket, message..." oninput="renderTickets()">
+          </div>
+
+          <div class="inbox-tabs">
+            <button class="active" onclick="setTicketFilter('all', this)">All</button>
+            <button onclick="setTicketFilter('new', this)">New</button>
+            <button onclick="setTicketFilter('active', this)">Active</button>
+            <button onclick="setTicketFilter('resolved', this)">Resolved</button>
+          </div>
+
+          <div class="ticket-list" id="ticketList"></div>
+        </aside>
+
+        <main class="agent-main" id="agentMain">
+          <div class="empty-chat">
+            <div>
+              <h2>Select a customer query</h2>
+              <p>Click an incoming chat from the inbox to open the conversation.</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <section class="screen about-screen" id="aboutScreen">
+      <div class="about-wrap">
+        <div class="about-hero">
+          <div class="about-badge">MSD Customer Support Chatbot MVP</div>
+          <h1>A smarter, faster support experience for MSD customers.</h1>
+          <p>
+            This MVP is designed as a clean customer support chatbot and agent ticketing system for MSD-style service delivery.
+            It gives health facilities and guests a simple way to ask questions, search help topics, create tickets,
+            continue unresolved cases, and connect with support agents when the chatbot is not enough.
+          </p>
+        </div>
+
+        <div class="about-content">
+          <div class="about-grid">
+            <div class="about-card">
+              <div class="icon">🤖</div>
+              <h3>Customer Chatbot</h3>
+              <p>Users can ask questions, search related topics live, access FAQs, and create support tickets when their issue needs human help.</p>
+            </div>
+
+            <div class="about-card">
+              <div class="icon">🎫</div>
+              <h3>Ticketing System</h3>
+              <p>Each query can become a ticket, allowing the user to continue from the last message until the issue is solved.</p>
+            </div>
+
+            <div class="about-card">
+              <div class="icon">👨‍💻</div>
+              <h3>Agent Inbox</h3>
+              <p>Agents can manage New, Active, Resolved, and All tickets, with a maximum active capacity to avoid overload.</p>
+            </div>
+
+            <div class="about-card">
+              <div class="icon">📝</div>
+              <h3>Open New Ticket</h3>
+              <p>Customers can directly start a new support request from the chatbot homepage.</p>
+            </div>
+
+            <div class="about-card">
+              <div class="icon">🧠</div>
+              <h3>MediAssist AI</h3>
+              <p>Coming in Phase Two: an AI support assistant for fast MSD service guidance and self-service answers.</p>
+            </div>
+
+            <div class="about-card">
+              <div class="icon">🌓</div>
+              <h3>MSD Dark & Light Themes</h3>
+              <p>The whole MVP supports theme switching between a dark support-console look and a clean white-and-blue MSD light interface.</p>
+            </div>
+          </div>
+
+          <div class="credits">
+            <h2>Credits</h2>
+            <p>This MVP is powered by George Benson and Raymond.</p>
+
+            <div class="name-line">
+              <span class="name-pill">George Benson</span>
+              <span class="name-pill">Raymond</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="transfer-overlay" id="transferOverlay">
+    <div class="transfer-modal">
+      <h2>Transfer Ticket</h2>
+      <p>Select a fellow agent or type an agent name starting with @. The transfer will be added to the ticket timeline.</p>
+
+      <div class="agent-options">
+        <button class="agent-chip" onclick="selectTransferAgent('@George', this)">@George</button>
+        <button class="agent-chip" onclick="selectTransferAgent('@Reezy', this)">@Reezy</button>
+        <button class="agent-chip" onclick="selectTransferAgent('@Amina', this)">@Amina</button>
+        <button class="agent-chip" onclick="selectTransferAgent('@Brian', this)">@Brian</button>
+        <button class="agent-chip" onclick="selectTransferAgent('@Neema', this)">@Neema</button>
+      </div>
+
+      <input class="transfer-input" id="transferInput" placeholder="Or type @agentname..." oninput="manualTransferInput()">
+
+      <div class="transfer-actions">
+        <button class="cancel-transfer" onclick="closeTransferModal()">Cancel</button>
+        <button class="confirm-transfer" onclick="confirmTransfer()">Transfer Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CURRENT_AGENT = "Agent A";
+    const MAX_ACTIVE_TICKETS = 5;
+
+    const screens = {
+      customer: document.getElementById("customerScreen"),
+      login: document.getElementById("loginScreen"),
+      agent: document.getElementById("agentScreen"),
+      about: document.getElementById("aboutScreen")
+    };
+
+    const navButtons = {
+      customer: document.getElementById("customerBtn"),
+      login: document.getElementById("loginBtn"),
+      agent: document.getElementById("agentBtn"),
+      about: document.getElementById("aboutBtn")
+    };
+
+    const customerHome = document.getElementById("customerHome");
+    const customerChat = document.getElementById("customerChat");
+    const customerDummyPage = document.getElementById("dummyPage");
+    const dummyContent = document.getElementById("dummyContent");
+    const customerChatBody = document.getElementById("customerChatBody");
+    const customerInput = document.getElementById("customerInput");
+    const customerTyping = document.getElementById("customerTyping");
+    const customerToolDrawer = document.getElementById("customerToolDrawer");
+    const customerPlusBtn = document.getElementById("customerPlusBtn");
+    const suggestionPanel = document.getElementById("suggestionPanel");
+    const suggestionList = document.getElementById("suggestionList");
+    const chatLogo = document.getElementById("chatLogo");
+
+    const ticketList = document.getElementById("ticketList");
+    const agentMain = document.getElementById("agentMain");
+    const capacityPill = document.getElementById("capacityPill");
+    const ticketSearch = document.getElementById("ticketSearch");
+    const agentShell = document.getElementById("agentShell");
+
+    const transferOverlay = document.getElementById("transferOverlay");
+    const transferInput = document.getElementById("transferInput");
+
+    let selectedTicketId = null;
+    let currentTicketFilter = "all";
+    let transferTicketId = null;
+    let selectedTransferAgent = "";
+    let currentLanguage = "en";
+    let customerChatMode = "support";
+
+    const translations = {
+      en: {
+        homeTitle: "Hi MSD Customer",
+        homeSubtitle: "Get quick support for orders, delivery, zonal contacts, GePG guidance, and complaints.",
+        quickAccess: "Quick Access",
+        moreTools: "More tools",
+        language: "Language",
+        languageHint: "Choose how you want support",
+        orderStatus: "Order Status",
+        zonalContacts: "Zonal Contacts",
+        myTickets: "My Tickets",
+        review: "Review",
+        topics: "Topics",
+        allTopics: "All Topics",
+        viewAll: "View all",
+        msdServices: "MSD Services",
+        orderGuidance: "Order Guidance",
+        gepg: "GePG",
+        complaints: "Complaints",
+        feedback: "Feedback",
+        welcome: "👋 Thanks for contacting MSD Support. How can we help you?",
+        faq: "Frequently asked questions on MSD Customer Service",
+        seeOriginal: "See Original",
+        chatPlaceholder: "Enter question here",
+        aiPlaceholder: "Ask MediAssist AI...",
+        history: "↑ View Chat History",
+        suggested: "Suggested topics",
+        typing: "MSD Support is typing...",
+        aiTyping: "MediAssist AI is thinking...",
+        gotItOrder: "Got it! Give me just a moment to check your order-related request.",
+        gotItZonal: "Got it! Please choose or type your region so I can guide you to the correct MSD zonal office contact.",
+        gotItGePG: "Got it! Give me just a moment to check GePG and payment guidance.",
+        gotItDelivery: "Got it! I will check related delivery timeline support topics.",
+        gotItComplaint: "I can create a support ticket so an MSD officer can continue from this query until it is solved.",
+        gotItMedicine: "Got it! I found topics related to medicine availability and ordering support.",
+        gotItGeneral: "Got it! Give me just a moment to check.",
+        relatedItems: "Here are some related items:",
+        viewMore: "View more",
+        lookingFor: "You might be looking for",
+        humanSupportOrder: "Need human support for this order?",
+        createTicket: "Create Ticket",
+        escalate: "Escalate",
+        supportCreated: "Your support ticket has been created and sent to the agent inbox.",
+        ticketCreated: "Ticket Created: MSD-163076203",
+        ticketCreatedText: "Your query has been sent to the customer support inbox. You can continue from this last message until the issue is solved.",
+        originalFaq: "The original FAQ answer will appear here. In Phase One, this comes from predefined MSD knowledge base content.",
+        historyLoaded: "Previous chat history loaded. You can continue from your last query.",
+        sessionEnded: "Your chat session has ended. If your ticket is still open, you can return later and continue from the last message.",
+        searchFor: "Search for",
+        sendAsQuery: "Send this as your support query",
+        faqs: "FAQs",
+        selfService: "Self Service",
+        orders: "Orders",
+        contacts: "Contacts",
+        files: "Files"
+      },
+
+      sw: {
+        homeTitle: "Habari Mteja wa MSD",
+        homeSubtitle: "Pata msaada wa haraka kuhusu oda, usafirishaji, ofisi za kanda, GePG, na malalamiko.",
+        quickAccess: "Huduma za Haraka",
+        moreTools: "Zana zaidi",
+        language: "Lugha",
+        languageHint: "Chagua lugha ya huduma",
+        orderStatus: "Hali ya Oda",
+        zonalContacts: "Mawasiliano ya Kanda",
+        myTickets: "Tiketi Zangu",
+        review: "Hakiki",
+        topics: "Mada",
+        allTopics: "Mada zote",
+        viewAll: "Tazama zote",
+        msdServices: "Huduma za MSD",
+        orderGuidance: "Mwongozo wa Oda",
+        gepg: "GePG",
+        complaints: "Malalamiko",
+        feedback: "Maoni",
+        welcome: "👋 Asante kwa kuwasiliana na MSD Support. Tunawezaje kukusaidia?",
+        faq: "Maswali yanayoulizwa mara kwa mara kuhusu Huduma kwa Wateja MSD",
+        seeOriginal: "Tazama Chanzo",
+        chatPlaceholder: "Andika swali hapa",
+        aiPlaceholder: "Muulize MediAssist AI...",
+        history: "↑ Tazama Historia ya Chat",
+        suggested: "Mada zilizopendekezwa",
+        typing: "MSD Support inaandika...",
+        aiTyping: "MediAssist AI inafikiri...",
+        gotItOrder: "Sawa! Nipe muda mfupi kuangalia ombi lako kuhusu oda.",
+        gotItZonal: "Sawa! Tafadhali chagua au andika mkoa wako ili nikuelekeze kwenye ofisi sahihi ya MSD ya kanda.",
+        gotItGePG: "Sawa! Nipe muda mfupi kuangalia mwongozo wa GePG na malipo.",
+        gotItDelivery: "Sawa! Nitaangalia mada zinazohusiana na muda wa usafirishaji.",
+        gotItComplaint: "Naweza kutengeneza tiketi ya msaada ili afisa wa MSD aendelee na swali lako mpaka litatuliwe.",
+        gotItMedicine: "Sawa! Nimepata mada zinazohusiana na upatikanaji wa dawa na oda.",
+        gotItGeneral: "Sawa! Nipe muda mfupi kuangalia.",
+        relatedItems: "Hizi ni mada zinazohusiana:",
+        viewMore: "Tazama zaidi",
+        lookingFor: "Huenda unatafuta",
+        humanSupportOrder: "Unahitaji msaada wa afisa kuhusu oda hii?",
+        createTicket: "Tengeneza Tiketi",
+        escalate: "Pandisha kwa Afisa",
+        supportCreated: "Tiketi yako ya msaada imetengenezwa na kutumwa kwa maafisa wa huduma.",
+        ticketCreated: "Tiketi Imetengenezwa: MSD-163076203",
+        ticketCreatedText: "Swali lako limetumwa kwenye dawati la huduma kwa wateja. Unaweza kuendelea kutoka ujumbe wa mwisho mpaka tatizo litatuliwe.",
+        originalFaq: "Jibu la awali la FAQ litaonekana hapa. Kwenye awamu ya kwanza, linatoka kwenye maarifa ya MSD yaliyowekwa tayari.",
+        historyLoaded: "Historia ya mazungumzo imefunguliwa. Unaweza kuendelea kutoka swali lako la mwisho.",
+        sessionEnded: "Mazungumzo yako yamefungwa. Kama tiketi bado iko wazi, unaweza kurudi baadaye na kuendelea.",
+        searchFor: "Tafuta",
+        sendAsQuery: "Tuma hili kama swali lako la msaada",
+        faqs: "Maswali",
+        selfService: "Huduma Binafsi",
+        orders: "Oda",
+        contacts: "Mawasiliano",
+        files: "Faili"
+      },
+
+      fr: {
+        homeTitle: "Bonjour Client MSD",
+        homeSubtitle: "Obtenez une assistance rapide pour les commandes, la livraison, les contacts zonaux, GePG et les plaintes.",
+        quickAccess: "Accès Rapide",
+        moreTools: "Plus d’outils",
+        language: "Langue",
+        languageHint: "Choisissez votre langue d’assistance",
+        orderStatus: "Statut de Commande",
+        zonalContacts: "Contacts Zonaux",
+        myTickets: "Mes Tickets",
+        review: "Vérifier",
+        topics: "Sujets",
+        allTopics: "Tous les sujets",
+        viewAll: "Voir tout",
+        msdServices: "Services MSD",
+        orderGuidance: "Guide de Commande",
+        gepg: "GePG",
+        complaints: "Plaintes",
+        feedback: "Retour",
+        welcome: "👋 Merci d’avoir contacté MSD Support. Comment pouvons-nous vous aider ?",
+        faq: "Questions fréquentes sur le service client MSD",
+        seeOriginal: "Voir l’original",
+        chatPlaceholder: "Entrez votre question ici",
+        aiPlaceholder: "Demandez à MediAssist AI...",
+        history: "↑ Voir l’historique",
+        suggested: "Sujets suggérés",
+        typing: "MSD Support écrit...",
+        aiTyping: "MediAssist AI réfléchit...",
+        gotItOrder: "D’accord ! Donnez-moi un instant pour vérifier votre demande liée à la commande.",
+        gotItZonal: "D’accord ! Veuillez choisir ou saisir votre région afin que je vous guide vers le bon bureau zonal MSD.",
+        gotItGePG: "D’accord ! Donnez-moi un instant pour vérifier les informations GePG et de paiement.",
+        gotItDelivery: "D’accord ! Je vais vérifier les sujets liés au délai de livraison.",
+        gotItComplaint: "Je peux créer un ticket afin qu’un agent MSD continue votre demande jusqu’à sa résolution.",
+        gotItMedicine: "D’accord ! J’ai trouvé des sujets liés à la disponibilité des médicaments et aux commandes.",
+        gotItGeneral: "D’accord ! Donnez-moi un instant pour vérifier.",
+        relatedItems: "Voici quelques éléments associés :",
+        viewMore: "Voir plus",
+        lookingFor: "Vous cherchez peut-être",
+        humanSupportOrder: "Besoin d’un agent pour cette commande ?",
+        createTicket: "Créer un ticket",
+        escalate: "Escalader",
+        supportCreated: "Votre ticket d’assistance a été créé et envoyé à la boîte de réception des agents.",
+        ticketCreated: "Ticket créé : MSD-163076203",
+        ticketCreatedText: "Votre demande a été envoyée au support client. Vous pouvez continuer à partir du dernier message jusqu’à la résolution.",
+        originalFaq: "La réponse FAQ originale apparaîtra ici. Dans la phase un, elle provient du contenu prédéfini de la base MSD.",
+        historyLoaded: "L’historique du chat a été chargé. Vous pouvez continuer depuis votre dernière demande.",
+        sessionEnded: "Votre session de chat est terminée. Si votre ticket est encore ouvert, vous pouvez revenir plus tard.",
+        searchFor: "Rechercher",
+        sendAsQuery: "Envoyer ceci comme demande d’assistance",
+        faqs: "FAQ",
+        selfService: "Libre-service",
+        orders: "Commandes",
+        contacts: "Contacts",
+        files: "Fichiers"
+      }
+    };
+
+    function t(key) {
+      return translations[currentLanguage][key] || translations.en[key] || key;
+    }
+
+    const starterTemplates = [
+      {
+        label: "Standard greeting",
+        text: `Hello, this is ${CURRENT_AGENT} from MSD Support. Please give me a moment to check your ticket and assist you properly.`
+      },
+      {
+        label: "Checking details",
+        text: `Hello, this is ${CURRENT_AGENT}. I am now reviewing your request. Kindly give me a short moment while I check the details.`
+      },
+      {
+        label: "Order support",
+        text: `Hello, this is ${CURRENT_AGENT} from MSD Support. I will check your order issue now. Please give me a moment.`
+      },
+      {
+        label: "Payment support",
+        text: `Hello, this is ${CURRENT_AGENT}. I will check your payment or GePG request and guide you shortly.`
+      },
+      {
+        label: "Apology + support",
+        text: `Hello, this is ${CURRENT_AGENT}. Sorry for the delay. I am now checking your ticket and will assist you shortly.`
+      }
+    ];
+
+    const quickTextTemplates = [
+      {
+        label: "Request order number",
+        text: "Kindly share your order number or reference number so I can check it for you."
+      },
+      {
+        label: "Request invoice details",
+        text: "Please share your invoice number or payment reference so I can guide you correctly."
+      },
+      {
+        label: "Request region",
+        text: "Kindly share your region or zone so I can connect you to the correct MSD office."
+      },
+      {
+        label: "Issue escalated",
+        text: "I have escalated this issue for further review. I will update you once feedback is available."
+      },
+      {
+        label: "Closing message",
+        text: "Thank you for contacting MSD Support. I will mark this ticket as resolved unless you need more help."
+      }
+    ];
+
+    const faqArticles = [
+      { label: "Order Status Guide", text: "https://msd.go.tz/support/order-status" },
+      { label: "GePG Payment Guide", text: "https://msd.go.tz/support/gepg-payment" },
+      { label: "Zonal Contacts", text: "https://msd.go.tz/contact/zones" },
+      { label: "Medicine Availability", text: "https://msd.go.tz/support/availability" }
+    ];
+
+    const dummyPages = {
+      order: {
+        icon: "📦",
+        title: "Order Status",
+        subtitle: "Your MSD orders",
+        heading: "Order Status",
+        description: "Track submitted orders, delivery progress, pending review items, and order documents.",
+        stats: [
+          { value: "3", label: "Open Orders" },
+          { value: "1", label: "In Delivery" },
+          { value: "2", label: "Need Review" }
+        ],
+        sections: [
+          {
+            title: "Current Orders",
+            meta: "Updated today",
+            type: "rows",
+            rows: [
+              {
+                title: "ORD-78219 · Essential Medicines",
+                time: "Submitted 2026-06-08",
+                text: "Facility: Dodoma Medical Center. Current stage: payment verified, warehouse picking in progress.",
+                pills: [
+                  { text: "In Progress", color: "green" },
+                  { text: "ETA: 3 days", color: "blue" }
+                ]
+              },
+              {
+                title: "ORD-77802 · Surgical Supplies",
+                time: "Submitted 2026-06-04",
+                text: "Facility: Keko Health Facility. Current stage: waiting for invoice confirmation.",
+                pills: [
+                  { text: "Review Needed", color: "orange" },
+                  { text: "Invoice Pending", color: "blue" }
+                ]
+              },
+              {
+                title: "ORD-76490 · Laboratory Items",
+                time: "Submitted 2026-05-29",
+                text: "Facility: Mbeya Regional Hospital. Current stage: dispatched to zonal warehouse.",
+                pills: [
+                  { text: "Dispatched", color: "green" },
+                  { text: "Tracking Active", color: "blue" }
+                ]
+              }
+            ]
+          },
+          {
+            title: "Order Timeline",
+            meta: "ORD-78219",
+            type: "timeline",
+            steps: [
+              { title: "Order submitted", text: "The order was received through the MSD ordering channel." },
+              { title: "Payment verified", text: "GePG payment and invoice details were checked successfully." },
+              { title: "Warehouse picking", text: "Items are being prepared by warehouse staff." },
+              { title: "Awaiting dispatch", text: "Next step is dispatch to the assigned zone." }
+            ]
+          }
+        ],
+        actions: ["Download Order Summary", "Open Chat"]
+      },
+
+      zonal: {
+        icon: "☎",
+        title: "Zonal Contacts",
+        subtitle: "MSD support by region",
+        heading: "Zonal Contacts",
+        description: "Find the correct MSD zonal office, contact method, and support route for your facility.",
+        stats: [
+          { value: "8", label: "Zones" },
+          { value: "24/7", label: "Support Routing" },
+          { value: "3", label: "Open Requests" }
+        ],
+        sections: [
+          {
+            title: "Recommended Contacts",
+            meta: "Based on recent tickets",
+            type: "rows",
+            rows: [
+              {
+                title: "Dar es Salaam Zone",
+                time: "Primary",
+                text: "For Keko Health Facility, Temeke, Ilala, Kinondoni, Kigamboni, and nearby facilities.",
+                pills: [
+                  { text: "+255 22 286 0890", color: "blue" },
+                  { text: "dar-zone@msd.go.tz", color: "green" }
+                ]
+              },
+              {
+                title: "Dodoma Zone",
+                time: "Active",
+                text: "Handles Dodoma Medical Center, central-region facilities, and delivery follow-up.",
+                pills: [
+                  { text: "+255 26 232 0190", color: "blue" },
+                  { text: "dodoma-zone@msd.go.tz", color: "green" }
+                ]
+              },
+              {
+                title: "Mwanza Zone",
+                time: "Regional",
+                text: "Supports Lake Zone facilities, order tracking, delivery, and urgent supply follow-up.",
+                pills: [
+                  { text: "+255 28 250 1220", color: "blue" },
+                  { text: "mwanza-zone@msd.go.tz", color: "green" }
+                ]
+              }
+            ]
+          }
+        ],
+        actions: ["Copy Contacts", "Open Chat"]
+      },
+
+      tickets: {
+        icon: "🎫",
+        title: "My Tickets",
+        subtitle: "Continue previous cases",
+        heading: "My Tickets",
+        description: "View open, active, resolved, and review-pending support tickets. Continue from the last message or start a new request.",
+        stats: [
+          { value: "3", label: "Total Tickets" },
+          { value: "1", label: "Active" },
+          { value: "1", label: "Resolved" }
+        ],
+        sections: [
+          {
+            title: "Ticket Inbox",
+            meta: "Customer view",
+            type: "rows",
+            rows: [
+              {
+                title: "MSD-163076203 · Order delivery timeline",
+                time: "Active",
+                text: "Last message: Support is checking the delivery timeline for ORD-78219.",
+                pills: [
+                  { text: "Assigned: Agent A", color: "green" },
+                  { text: "Last update: 09:18", color: "blue" }
+                ]
+              },
+              {
+                title: "MSD-1008 · GePG payment guidance",
+                time: "New",
+                text: "Waiting for support agent to confirm invoice and control number steps.",
+                pills: [
+                  { text: "New", color: "orange" },
+                  { text: "Payment", color: "blue" }
+                ]
+              },
+              {
+                title: "MSD-0988 · Zonal contact request",
+                time: "Resolved",
+                text: "Customer received the correct zonal office phone and email.",
+                pills: [
+                  { text: "Resolved", color: "green" },
+                  { text: "Waiting Review", color: "blue" }
+                ]
+              }
+            ]
+          }
+        ],
+        actions: ["Continue Ticket", "Open Chat"]
+      },
+
+      "new-ticket": {
+        icon: "📝",
+        title: "Open New Ticket",
+        subtitle: "Fresh support request",
+        heading: "Open New Ticket",
+        description: "Start a new support request for a different issue. This page shows the details a user would provide before submitting a ticket.",
+        stats: [
+          { value: "4", label: "Issue Types" },
+          { value: "2 min", label: "Estimated Time" },
+          { value: "24/7", label: "Ticket Access" }
+        ],
+        sections: [
+          {
+            title: "Ticket Details",
+            meta: "Preview form",
+            type: "formPreview",
+            fields: [
+              { label: "Facility Name", value: "Dodoma Medical Center" },
+              { label: "Issue Category", value: "Order, Delivery, GePG Payment, Zonal Contact, Complaint" },
+              { label: "Reference Details", value: "Order number, invoice number, GePG control number, or delivery note." },
+              { label: "Problem Description", value: "Customer explains what happened and what support they need." }
+            ]
+          },
+          {
+            title: "What Happens Next?",
+            meta: "Support flow",
+            type: "timeline",
+            steps: [
+              { title: "Ticket submitted", text: "The request is saved and given a unique ticket number." },
+              { title: "Agent reviews request", text: "A support agent checks the issue and asks for missing information if needed." },
+              { title: "Customer continues from last query", text: "The customer can return later and continue the same ticket without starting again." },
+              { title: "Ticket resolved or escalated", text: "The issue is solved by the agent or escalated to the correct MSD team." }
+            ]
+          }
+        ],
+        actions: ["Submit Dummy Ticket", "Open Chat"]
+      },
+
+      tools: {
+        icon: "🧰",
+        title: "More Tools",
+        subtitle: "Self-service options",
+        heading: "More Tools",
+        description: "Extra MSD support tools for common customer service needs, forms, guides, and requests.",
+        stats: [
+          { value: "6", label: "Tools" },
+          { value: "12", label: "Guides" },
+          { value: "4", label: "Forms" }
+        ],
+        sections: [
+          {
+            title: "Available Tools",
+            meta: "Dummy links",
+            type: "rows",
+            rows: [
+              {
+                title: "Download Customer Forms",
+                time: "Forms",
+                text: "Access facility request forms, correction forms, and support request templates.",
+                pills: [
+                  { text: "PDF", color: "blue" },
+                  { text: "DOCX", color: "green" }
+                ]
+              },
+              {
+                title: "GePG Payment Guide",
+                time: "Guide",
+                text: "Step-by-step guide for invoice payment, control number confirmation, and receipt sharing.",
+                pills: [
+                  { text: "Payments", color: "orange" },
+                  { text: "Popular", color: "green" }
+                ]
+              },
+              {
+                title: "Complaint Form",
+                time: "Support",
+                text: "Submit a complaint about delays, missing items, communication, or service quality.",
+                pills: [
+                  { text: "Escalation", color: "blue" },
+                  { text: "Ticket", color: "green" }
+                ]
+              }
+            ]
+          }
+        ],
+        actions: ["Open Forms", "Open Chat"]
+      }
+    };
+
+    const msdKnowledgeBase = [
+      {
+        id: 1,
+        title: "How do I check my order status?",
+        subtitle: "Track submitted MSD orders",
+        keywords: ["order", "status", "track", "submitted", "pending", "oda", "commande"],
+        type: "Orders"
+      },
+      {
+        id: 2,
+        title: "Order submitted but not yet updated",
+        subtitle: "What to do when order status is delayed",
+        keywords: ["order", "not updated", "delay", "pending", "status", "oda"],
+        type: "Orders"
+      },
+      {
+        id: 3,
+        title: "How do I get a GePG control number?",
+        subtitle: "Payment and invoice control number guidance",
+        keywords: ["gepg", "control", "payment", "invoice", "number", "malipo"],
+        type: "GePG"
+      },
+      {
+        id: 4,
+        title: "Invoice available but payment steps unclear",
+        subtitle: "Step-by-step payment support",
+        keywords: ["invoice", "payment", "steps", "gepg", "malipo"],
+        type: "GePG"
+      },
+      {
+        id: 5,
+        title: "Find MSD zonal office contacts",
+        subtitle: "Get support based on your region",
+        keywords: ["zonal", "zone", "contact", "office", "region", "kanda"],
+        type: "Contacts"
+      },
+      {
+        id: 6,
+        title: "Delivery timeline inquiry",
+        subtitle: "Ask about delivery and dispatch expectations",
+        keywords: ["delivery", "timeline", "dispatch", "arrive", "truck", "usafirishaji", "livraison"],
+        type: "Delivery"
+      },
+      {
+        id: 7,
+        title: "Medicine availability process",
+        subtitle: "How to confirm availability before ordering",
+        keywords: ["medicine", "availability", "stock", "supplies", "items", "dawa"],
+        type: "Services"
+      },
+      {
+        id: 8,
+        title: "Submit a customer complaint",
+        subtitle: "Escalate issue to MSD support officer",
+        keywords: ["complaint", "problem", "issue", "agent", "human", "support", "malalamiko"],
+        type: "Complaint"
+      },
+      {
+        id: 9,
+        title: "How do I continue my existing ticket?",
+        subtitle: "Resume a previous support case",
+        keywords: ["ticket", "case", "continue", "previous", "history"],
+        type: "Tickets"
+      },
+      {
+        id: 10,
+        title: "MSD service information",
+        subtitle: "Procurement, storage, manufacturing and distribution",
+        keywords: ["services", "msd", "procurement", "storage", "distribution", "huduma"],
+        type: "Services"
+      }
+    ];
+
+    let tickets = [
+      {
+        id: "MSD-163076203",
+        customer: "Keko Health Facility",
+        phone: "+255 712 000 111",
+        region: "Dar es Salaam",
+        channel: "Website Chat",
+        priority: "high",
+        status: "new",
+        assignedTo: null,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "Order status not received",
+        preview: "The order was submitted last week, but we have not received an update.",
+        createdAt: "Today 09:15",
+        lastUpdated: "09:18",
+        messages: [
+          { sender: "customer", author: "Keko Health Facility", text: "Hello, I need help checking our order status.", time: "09:15", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Please provide your order number or facility details.", time: "09:16", kind: "text" },
+          { sender: "customer", author: "Keko Health Facility", text: "The order was submitted last week, but we have not received an update.", time: "09:17", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "I will escalate this query to a customer service officer.", time: "09:18", kind: "text" }
+        ],
+        timeline: [
+          "Ticket created from chatbot escalation.",
+          "Customer requested order status support.",
+          "Waiting for agent acceptance."
+        ],
+        transferHistory: []
+      },
+      {
+        id: "MSD-1002",
+        customer: "Mwanza District Hospital",
+        phone: "+255 713 222 450",
+        region: "Mwanza",
+        channel: "WhatsApp",
+        priority: "medium",
+        status: "new",
+        assignedTo: null,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "Need zonal office contact",
+        preview: "Tunahitaji mawasiliano ya ofisi ya kanda kwa ajili ya kufuatilia mzigo.",
+        createdAt: "Today 10:02",
+        lastUpdated: "10:06",
+        messages: [
+          { sender: "customer", author: "Mwanza District Hospital", text: "Tunahitaji mawasiliano ya ofisi ya kanda kwa ajili ya kufuatilia mzigo.", time: "10:02", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Tafadhali taja mkoa wako.", time: "10:03", kind: "text" },
+          { sender: "customer", author: "Mwanza District Hospital", text: "Mwanza.", time: "10:04", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Nimepeleka ombi lako kwa afisa huduma kwa wateja.", time: "10:06", kind: "text" }
+        ],
+        timeline: [
+          "Ticket created from WhatsApp escalation.",
+          "Region identified: Mwanza.",
+          "Waiting for agent acceptance."
+        ],
+        transferHistory: []
+      },
+      {
+        id: "MSD-1003",
+        customer: "Dodoma Medical Center",
+        phone: "+255 714 333 621",
+        region: "Dodoma",
+        channel: "Website Chat",
+        priority: "low",
+        status: "active",
+        assignedTo: CURRENT_AGENT,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "GePG control number guidance",
+        preview: "We have the invoice but need payment steps.",
+        createdAt: "Today 08:41",
+        lastUpdated: "08:55",
+        messages: [
+          { sender: "customer", author: "Dodoma Medical Center", text: "How can we get a GePG control number?", time: "08:41", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Please confirm your invoice details.", time: "08:42", kind: "text" },
+          { sender: "customer", author: "Dodoma Medical Center", text: "We have the invoice but need payment steps.", time: "08:44", kind: "text" }
+        ],
+        timeline: [
+          "Ticket created from website chatbot.",
+          `${CURRENT_AGENT} accepted the ticket.`
+        ],
+        transferHistory: [CURRENT_AGENT]
+      },
+      {
+        id: "MSD-1004",
+        customer: "Arusha Clinic",
+        phone: "+255 715 898 110",
+        region: "Arusha",
+        channel: "WhatsApp",
+        priority: "medium",
+        status: "active",
+        assignedTo: CURRENT_AGENT,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "Delivery timeline inquiry",
+        preview: "When should we expect delivery for our submitted order?",
+        createdAt: "Today 11:10",
+        lastUpdated: "11:33",
+        messages: [
+          { sender: "customer", author: "Arusha Clinic", text: "When should we expect delivery?", time: "11:10", kind: "text" },
+          { sender: "agent", author: "@Reezy", text: "Hello, this is @Reezy from MSD Support. Please give me a moment while I check your delivery issue.", time: "11:13", kind: "text" },
+          { sender: "agent", author: "@Reezy", text: "I have checked the first dispatch note, but I am transferring this to Agent A for final confirmation.", time: "11:17", kind: "text" },
+          { sender: "customer", author: "Arusha Clinic", text: "The order reference is ORD-7782.", time: "11:33", kind: "text" }
+        ],
+        timeline: [
+          "Ticket created.",
+          "@Reezy sent starter message.",
+          "@Reezy handled the first response.",
+          `Ticket transferred from @Reezy to ${CURRENT_AGENT}.`
+        ],
+        transferHistory: ["@Reezy", CURRENT_AGENT]
+      },
+      {
+        id: "MSD-1005",
+        customer: "Mbeya Regional Hospital",
+        phone: "+255 716 509 223",
+        region: "Mbeya",
+        channel: "Website Chat",
+        priority: "high",
+        status: "new",
+        assignedTo: null,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "Medicine availability process",
+        preview: "Customer wants guidance on how to confirm availability of listed medical supplies.",
+        createdAt: "Today 12:04",
+        lastUpdated: "12:08",
+        messages: [
+          { sender: "customer", author: "Mbeya Regional Hospital", text: "How do we confirm availability of medicine before ordering?", time: "12:04", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Please provide the item list or category.", time: "12:05", kind: "text" },
+          { sender: "customer", author: "Mbeya Regional Hospital", text: "We have many items. I need a customer service officer.", time: "12:08", kind: "text" }
+        ],
+        timeline: [
+          "Customer asked about medicine availability.",
+          "Chatbot requested item list.",
+          "Customer requested human support."
+        ],
+        transferHistory: []
+      },
+      {
+        id: "MSD-1006",
+        customer: "Mtwara Health Centre",
+        phone: "+255 717 800 901",
+        region: "Mtwara",
+        channel: "WhatsApp",
+        priority: "low",
+        status: "resolved",
+        assignedTo: CURRENT_AGENT,
+        resolvedBy: CURRENT_AGENT,
+        reviewStatus: "Waiting for review",
+        subject: "General MSD service information",
+        preview: "Ticket resolved by Agent A and waiting for review.",
+        createdAt: "Yesterday 14:00",
+        lastUpdated: "14:21",
+        messages: [
+          { sender: "customer", author: "Mtwara Health Centre", text: "What services does MSD provide?", time: "14:00", kind: "text" },
+          { sender: "agent", author: CURRENT_AGENT, text: `Hello, this is ${CURRENT_AGENT} from MSD Support. Please give me a moment to check your ticket and assist you properly.`, time: "14:03", kind: "text" },
+          { sender: "agent", author: CURRENT_AGENT, text: "MSD provides procurement, storage, manufacturing and distribution of medicines and medical supplies.", time: "14:10", kind: "text" },
+          { sender: "customer", author: "Mtwara Health Centre", text: "Thank you. That helps.", time: "14:21", kind: "text" },
+          { sender: "agent", author: CURRENT_AGENT, text: "This ticket has been resolved and is waiting for review.", time: "14:22", kind: "text" }
+        ],
+        timeline: [
+          "Ticket opened.",
+          `${CURRENT_AGENT} sent starter message.`,
+          `${CURRENT_AGENT} explained MSD services.`,
+          "Customer confirmed issue solved.",
+          `${CURRENT_AGENT} resolved the ticket.`,
+          "Ticket moved to Resolved section waiting for review."
+        ],
+        transferHistory: [CURRENT_AGENT]
+      }
+    ];
+
+    function toggleTheme() {
+      document.body.classList.toggle("msd-light");
+      const isLight = document.body.classList.contains("msd-light");
+      document.getElementById("themeToggle").textContent = isLight ? "MSD Dark" : "MSD Light";
+    }
+
+    function showScreen(screen) {
+      Object.values(screens).forEach(item => item.classList.remove("active"));
+      Object.values(navButtons).forEach(item => item.classList.remove("active"));
+
+      screens[screen].classList.add("active");
+      navButtons[screen].classList.add("active");
+
+      if (screen === "agent") {
+        renderTickets();
+        updateCapacity();
+      }
+    }
+
+    function fakeLogin() {
+      showScreen("agent");
+    }
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+
+      document.querySelectorAll(".language-pills button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`lang-${lang}`).classList.add("active");
+
+      document.getElementById("homeTitle").textContent = t("homeTitle");
+      document.getElementById("homeSubtitle").textContent = t("homeSubtitle");
+      document.getElementById("quickAccessTitle").textContent = t("quickAccess");
+      document.getElementById("moreToolsBtn").textContent = `${t("moreTools")} ›`;
+      document.getElementById("languageTitle").textContent = t("language");
+      document.getElementById("languageHint").textContent = t("languageHint");
+      document.getElementById("orderStatusCard").textContent = t("orderStatus");
+      document.getElementById("zonalContactsCard").textContent = t("zonalContacts");
+      document.getElementById("myTicketsCard").textContent = t("myTickets");
+      document.getElementById("reviewText").textContent = t("review");
+      document.getElementById("topicsTitle").textContent = t("topics");
+      document.getElementById("viewAllBtn").textContent = `${t("viewAll")} ›`;
+      document.getElementById("servicesTopic").textContent = t("msdServices");
+      document.getElementById("orderGuidanceTopic").textContent = t("orderGuidance");
+      document.getElementById("zonalTopic").textContent = t("zonalContacts");
+      document.getElementById("gepgTopic").textContent = t("gepg");
+      document.getElementById("complaintsTopic").textContent = t("complaints");
+      document.getElementById("feedbackTopic").textContent = t("feedback");
+      document.getElementById("welcomeBubble").textContent = t("welcome");
+      document.getElementById("faqTitle").textContent = t("faq");
+      document.getElementById("seeOriginalBtn").textContent = t("seeOriginal");
+      document.getElementById("customerInput").placeholder = customerChatMode === "ai" ? t("aiPlaceholder") : t("chatPlaceholder");
+      document.getElementById("historyBtn").textContent = t("history");
+      document.getElementById("suggestedTopicsLabel").textContent = t("suggested");
+      document.getElementById("customerTyping").textContent = customerChatMode === "ai" ? t("aiTyping") : t("typing");
+
+      document.getElementById("drawerFaqs").textContent = t("faqs");
+      document.getElementById("drawerSelfService").textContent = t("selfService");
+      document.getElementById("drawerOrders").textContent = t("orders");
+      document.getElementById("drawerContacts").textContent = t("contacts");
+      document.getElementById("drawerFiles").textContent = t("files");
+      document.getElementById("drawerEscalate").textContent = t("escalate");
+      document.getElementById("drawerFeedback").textContent = t("feedback");
+    }
+
+    function renderDummyPage(type) {
+      const page = dummyPages[type] || dummyPages.order;
+
+      const sectionsHtml = page.sections.map(section => {
+        if (section.type === "timeline") {
+          return `
+            <div class="dummy-section">
+              <div class="dummy-section-title">
+                <h3>${section.title}</h3>
+                <span>${section.meta}</span>
+              </div>
+
+              <div class="dummy-timeline">
+                ${section.steps.map((step, index) => `
+                  <div class="dummy-step">
+                    <div class="dummy-step-dot">${index + 1}</div>
+                    <div class="dummy-step-body">
+                      <strong>${step.title}</strong>
+                      <span>${step.text}</span>
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        if (section.type === "formPreview") {
+          return `
+            <div class="dummy-section">
+              <div class="dummy-section-title">
+                <h3>${section.title}</h3>
+                <span>${section.meta}</span>
+              </div>
+
+              <div class="ticket-form-preview">
+                ${section.fields.map(field => `
+                  <div class="ticket-form-field">
+                    <label>${field.label}</label>
+                    <div>${field.value}</div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="dummy-section">
+            <div class="dummy-section-title">
+              <h3>${section.title}</h3>
+              <span>${section.meta}</span>
+            </div>
+
+            <div class="dummy-list">
+              ${section.rows.map(row => `
+                <div class="dummy-row">
+                  <div class="dummy-row-top">
+                    <strong>${row.title}</strong>
+                    <span>${row.time}</span>
+                  </div>
+                  <p>${row.text}</p>
+                  <div class="dummy-pill-row">
+                    ${row.pills.map(pill => `<span class="dummy-pill ${pill.color || ""}">${pill.text}</span>`).join("")}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      dummyContent.innerHTML = `
+        <div class="dummy-hero">
+          <div class="dummy-icon">${page.icon}</div>
+          <div>
+            <h1>${page.heading}</h1>
+            <p>${page.description}</p>
+          </div>
+        </div>
+
+        <div class="dummy-stats">
+          ${page.stats.map(stat => `
+            <div class="dummy-stat">
+              <strong>${stat.value}</strong>
+              <span>${stat.label}</span>
+            </div>
+          `).join("")}
+        </div>
+
+        ${sectionsHtml}
+
+        <div class="dummy-actions">
+          <button class="dummy-secondary" onclick="${type === "new-ticket" ? "submitDummyTicket()" : "alert('Dummy preview action')"}">${page.actions[0]}</button>
+          <button class="dummy-primary" onclick="openCustomerChat()">${page.actions[1]}</button>
+        </div>
+      `;
+    }
+
+    function openCustomerChat() {
+      customerChatMode = "support";
+      document.body.classList.remove("ai-mode");
+
+      customerHome.classList.remove("active");
+      customerDummyPage.classList.remove("active");
+      customerChat.classList.add("active");
+
+      chatLogo.classList.remove("ai-logo");
+      chatLogo.textContent = "msd";
+
+      document.getElementById("chatSupportTitle").textContent = "MSD Support";
+      document.getElementById("chatSupportSubtitle").textContent = "Case ID #163076203";
+      customerInput.placeholder = t("chatPlaceholder");
+      customerTyping.textContent = t("typing");
+
+      removeAiNotice();
+      customerInput.focus();
+      scrollCustomerChat();
+    }
+
+    function openMediAssistAI() {
+      customerChatMode = "ai";
+      document.body.classList.add("ai-mode");
+
+      customerHome.classList.remove("active");
+      customerDummyPage.classList.remove("active");
+      customerChat.classList.add("active");
+
+      chatLogo.classList.add("ai-logo");
+      chatLogo.textContent = "AI";
+
+      document.getElementById("chatSupportTitle").textContent = "MediAssist AI";
+      document.getElementById("chatSupportSubtitle").textContent = "Phase Two Preview · AI Assistant";
+      customerInput.placeholder = t("aiPlaceholder");
+      customerTyping.textContent = t("aiTyping");
+
+      const existingNotice = document.getElementById("aiModeNotice");
+      if (!existingNotice) {
+        const notice = document.createElement("div");
+        notice.id = "aiModeNotice";
+        notice.className = "ai-mode-banner";
+        notice.innerHTML = `
+          <strong>MediAssist AI · Phase Two Preview</strong>
+          This is an AI assistant preview. It gives instant MSD service guidance, but complex issues can still be opened as a support ticket for a human agent.
+        `;
+        customerChatBody.insertBefore(notice, customerChatBody.children[1]);
+      }
+
+      addCustomerAIMessage(
+        "Hello, I am MediAssist AI. I can help with MSD service guidance, order support, GePG payment steps, zonal contact guidance, and complaint direction. What would you like help with?"
+      );
+
+      customerInput.focus();
+      scrollCustomerChat();
+    }
+
+    function removeAiNotice() {
+      const notice = document.getElementById("aiModeNotice");
+      if (notice) notice.remove();
+    }
+
+    function goCustomerHome() {
+      closeSuggestions();
+      customerChatMode = "support";
+      document.body.classList.remove("ai-mode");
+      customerChat.classList.remove("active");
+      customerDummyPage.classList.remove("active");
+      customerHome.classList.add("active");
+      removeAiNotice();
+    }
+
+    function openDummyPage(type) {
+      const page = dummyPages[type] || dummyPages.order;
+
+      customerHome.classList.remove("active");
+      customerChat.classList.remove("active");
+      customerDummyPage.classList.add("active");
+
+      document.getElementById("dummyTitle").textContent = page.title;
+      document.getElementById("dummySubtitle").textContent = page.subtitle;
+
+      renderDummyPage(type);
+    }
+
+    function goDummyBack() {
+      customerDummyPage.classList.remove("active");
+      customerChat.classList.remove("active");
+      customerHome.classList.add("active");
+    }
+
+    function openChatWithTopic(topic) {
+      openCustomerChat();
+      setTimeout(() => sendCustomerQuery(topic), 250);
+    }
+
+    function addCustomerMessage(text, sender) {
+      const message = document.createElement("div");
+      message.className = `message ${sender}`;
+      message.innerHTML = `<div class="bubble">${text}</div>`;
+      customerChatBody.insertBefore(message, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function addCustomerAIMessage(text) {
+      const message = document.createElement("div");
+      message.className = "message ai";
+      message.innerHTML = `
+        <div class="bubble">
+          <span class="ai-label">MediAssist AI · Phase Two</span>
+          ${text}
+        </div>
+      `;
+      customerChatBody.insertBefore(message, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function addCustomerAnswerCard(title, buttonText, actionName) {
+      const card = document.createElement("div");
+      card.className = "answer-card";
+      card.innerHTML = `
+        <strong>${title}</strong>
+        <button onclick="${actionName}">${buttonText}</button>
+      `;
+      customerChatBody.insertBefore(card, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function addRelatedItems(query) {
+      const related = getSuggestions(query).slice(0, 3);
+      const fallback = msdKnowledgeBase.slice(0, 3);
+      const items = related.length ? related : fallback;
+
+      const card = document.createElement("div");
+      card.className = "related-card";
+      card.innerHTML = `
+        <div>${t("relatedItems")}</div>
+        ${items.map(item => `
+          <button class="related-item" onclick="sendCustomerQueryById(${item.id})">
+            ${item.title}
+            <span>›</span>
+          </button>
+        `).join("")}
+        <button class="related-view-more" onclick="addLookingFor('${escapeForAttr(query)}')">${t("viewMore")}</button>
+      `;
+
+      customerChatBody.insertBefore(card, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function addLookingFor(query) {
+      const items = getSuggestions(query).length ? getSuggestions(query) : msdKnowledgeBase;
+
+      const card = document.createElement("div");
+      card.className = "looking-card";
+      card.innerHTML = `
+        <strong>${t("lookingFor")}</strong>
+        ${items.slice(0, 5).map(item => `
+          <button class="looking-item" onclick="sendCustomerQueryById(${item.id})">
+            ${item.title}
+            <span>›</span>
+          </button>
+        `).join("")}
+      `;
+
+      customerChatBody.insertBefore(card, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function addCustomerTicketCard() {
+      const card = document.createElement("div");
+      card.className = "ticket-card-chat";
+      card.innerHTML = `
+        <h3>${t("ticketCreated")}</h3>
+        <p>${t("ticketCreatedText")}</p>
+        <div class="status-pill">● In Progress</div>
+      `;
+      customerChatBody.insertBefore(card, customerTyping);
+      scrollCustomerChat();
+    }
+
+    function showCustomerTyping(callback) {
+      customerTyping.classList.add("show");
+      scrollCustomerChat();
+
+      setTimeout(() => {
+        customerTyping.classList.remove("show");
+        callback();
+        scrollCustomerChat();
+      }, 650);
+    }
+
+    function sendCustomerQueryById(id) {
+      const item = msdKnowledgeBase.find(x => x.id === id);
+      if (!item) return;
+      sendCustomerQuery(item.title);
+    }
+
+    function sendCustomerQuery(query) {
+      closeSuggestions();
+      addCustomerMessage(query, "user");
+      customerInput.value = "";
+
+      showCustomerTyping(() => {
+        if (customerChatMode === "ai") {
+          respondAsMediAssistAI(query);
+        } else {
+          respondToCustomerTopic(query);
+        }
+      });
+    }
+
+    function respondAsMediAssistAI(query) {
+      const lower = query.toLowerCase();
+      let answer = "";
+
+      if (lower.includes("order") || lower.includes("delivery") || lower.includes("dispatch") || lower.includes("oda")) {
+        answer = "For order and delivery support, prepare your order number, facility name, invoice reference, and delivery location. I can guide you on the likely next step, but a human agent should confirm the official order status.";
+      } else if (lower.includes("gepg") || lower.includes("payment") || lower.includes("invoice") || lower.includes("control")) {
+        answer = "For GePG support, check that the invoice number, control number, and payment receipt match. If the payment is made but not reflected, open a ticket and attach the payment reference for agent verification.";
+      } else if (lower.includes("zone") || lower.includes("zonal") || lower.includes("contact") || lower.includes("region")) {
+        answer = "For zonal contact guidance, choose your region first. MSD support can then route you to the correct zone office. If your issue is urgent, open a ticket so the support team can follow up.";
+      } else if (lower.includes("complaint") || lower.includes("problem") || lower.includes("issue")) {
+        answer = "For complaints, describe the issue clearly, include your facility name, order or invoice reference, and what outcome you expect. I can help prepare the complaint, but a human support agent will handle the official follow-up.";
+      } else {
+        answer = "I can help with MSD service guidance, order tracking steps, GePG payment questions, zonal contacts, complaints, and ticket preparation. Please share the issue type or reference details.";
+      }
+
+      addCustomerAIMessage(answer);
+      addCustomerAnswerCard("Need official human support?", "Open New Ticket", "openDummyPage('new-ticket')");
+    }
+
+    function respondToCustomerTopic(topic) {
+      const lower = topic.toLowerCase();
+
+      if (lower.includes("order") || lower.includes("status") || lower.includes("submitted") || lower.includes("oda") || lower.includes("commande")) {
+        addCustomerMessage(t("gotItOrder"), "bot");
+        addRelatedItems(topic);
+        addLookingFor(topic);
+        addCustomerAnswerCard(t("humanSupportOrder"), t("createTicket"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      if (lower.includes("zonal") || lower.includes("contact") || lower.includes("region") || lower.includes("kanda")) {
+        addCustomerMessage(t("gotItZonal"), "bot");
+        addRelatedItems(topic);
+        addCustomerAnswerCard(t("gotItComplaint"), t("escalate"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      if (lower.includes("gepg") || lower.includes("invoice") || lower.includes("payment") || lower.includes("control") || lower.includes("malipo")) {
+        addCustomerMessage(t("gotItGePG"), "bot");
+        addRelatedItems(topic);
+        addLookingFor(topic);
+        addCustomerAnswerCard(t("gotItComplaint"), t("createTicket"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      if (lower.includes("delivery") || lower.includes("dispatch") || lower.includes("usafirishaji") || lower.includes("livraison")) {
+        addCustomerMessage(t("gotItDelivery"), "bot");
+        addRelatedItems(topic);
+        addLookingFor(topic);
+        addCustomerAnswerCard(t("gotItComplaint"), t("createTicket"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      if (lower.includes("complaint") || lower.includes("problem") || lower.includes("agent") || lower.includes("human") || lower.includes("malalamiko")) {
+        addCustomerMessage(t("gotItComplaint"), "bot");
+        addCustomerAnswerCard(t("escalate"), t("createTicket"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      if (lower.includes("medicine") || lower.includes("availability") || lower.includes("stock") || lower.includes("dawa")) {
+        addCustomerMessage(t("gotItMedicine"), "bot");
+        addRelatedItems(topic);
+        addCustomerAnswerCard(t("gotItComplaint"), t("createTicket"), "createCustomerTicketFromButton()");
+        return;
+      }
+
+      addCustomerMessage(t("gotItGeneral"), "bot");
+      addRelatedItems(topic);
+      addLookingFor(topic);
+    }
+
+    function sendCustomerMessage() {
+      const text = customerInput.value.trim();
+      if (!text) return;
+      sendCustomerQuery(text);
+    }
+
+    function handleCustomerSearch() {
+      if (customerChatMode === "ai") return;
+
+      const value = customerInput.value.trim();
+
+      if (!value) {
+        closeSuggestions();
+        return;
+      }
+
+      const suggestions = getSuggestions(value).slice(0, 5);
+
+      if (!suggestions.length) {
+        suggestionList.innerHTML = `
+          <button class="suggestion-item" onclick="sendCustomerQuery('${escapeForAttr(value)}')">
+            <span class="suggestion-icon">↪</span>
+            <span class="suggestion-text">
+              ${t("searchFor")} "${value}"
+              <small>${t("sendAsQuery")}</small>
+            </span>
+          </button>
+        `;
+        suggestionPanel.classList.add("open");
+        return;
+      }
+
+      suggestionList.innerHTML = suggestions.map(item => `
+        <button class="suggestion-item" onclick="sendCustomerQueryById(${item.id})">
+          <span class="suggestion-icon">↪</span>
+          <span class="suggestion-text">
+            ${highlightMatch(item.title, value)}
+            <small>${item.subtitle}</small>
+          </span>
+        </button>
+      `).join("");
+
+      suggestionPanel.classList.add("open");
+    }
+
+    function getSuggestions(query) {
+      const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+
+      return msdKnowledgeBase
+        .map(item => {
+          const haystack = `${item.title} ${item.subtitle} ${item.keywords.join(" ")} ${item.type}`.toLowerCase();
+          let score = 0;
+
+          words.forEach(word => {
+            if (haystack.includes(word)) score += 1;
+            if (item.title.toLowerCase().includes(word)) score += 2;
+          });
+
+          return { ...item, score };
+        })
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score);
+    }
+
+    function highlightMatch(text, query) {
+      const firstWord = query.trim().split(/\s+/)[0];
+      if (!firstWord) return text;
+
+      const regex = new RegExp(`(${escapeRegExp(firstWord)})`, "ig");
+      return text.replace(regex, "<strong style='color:var(--msd-light-blue)'>$1</strong>");
+    }
+
+    function closeSuggestions() {
+      suggestionPanel.classList.remove("open");
+      suggestionList.innerHTML = "";
+    }
+
+    function escapeForAttr(text) {
+      return String(text)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeRegExp(text) {
+      return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
+
+    function createCustomerTicketFromButton() {
+      addCustomerMessage(t("createTicket"), "user");
+
+      showCustomerTyping(() => {
+        addCustomerMessage(t("supportCreated"), "bot");
+        addCustomerTicketCard();
+      });
+    }
+
+    function submitDummyTicket() {
+      const newTicket = {
+        id: "MSD-2001",
+        customer: "Dodoma Medical Center",
+        phone: "+255 714 333 621",
+        region: "Dodoma",
+        channel: "Website Form",
+        priority: "medium",
+        status: "new",
+        assignedTo: null,
+        resolvedBy: null,
+        reviewStatus: null,
+        subject: "New support request from ticket form",
+        preview: "Customer submitted a fresh support request from Open New Ticket page.",
+        createdAt: "Now",
+        lastUpdated: "Now",
+        messages: [
+          { sender: "customer", author: "Dodoma Medical Center", text: "I opened a new ticket from the customer portal.", time: "Now", kind: "text" },
+          { sender: "bot", author: "MSD Chatbot", text: "Your new support request has been received and added to the agent inbox.", time: "Now", kind: "text" }
+        ],
+        timeline: [
+          "Ticket created from Open New Ticket page.",
+          "Waiting for support agent acceptance."
+        ],
+        transferHistory: []
+      };
+
+      tickets.unshift(newTicket);
+      alert("Dummy ticket created and added to Agent Inbox.");
+      renderTickets();
+      openCustomerChat();
+      addCustomerMessage("I opened a new support ticket.", "user");
+      addCustomerMessage("Your new ticket has been created and sent to the support inbox. Ticket ID: MSD-2001", "bot");
+    }
+
+    function customerQuickTool(tool) {
+      toggleCustomerTools();
+      sendCustomerQuery(tool);
+    }
+
+    function toggleCustomerTools() {
+      customerToolDrawer.classList.toggle("open");
+      customerPlusBtn.textContent = customerToolDrawer.classList.contains("open") ? "×" : "+";
+      closeSuggestions();
+    }
+
+    function showOriginalFaq() {
+      if (customerChatMode === "ai") {
+        addCustomerAIMessage("MediAssist AI can explain MSD customer service topics, but official information should still be confirmed by MSD support or the relevant service page.");
+      } else {
+        addCustomerMessage(t("originalFaq"), "bot");
+      }
+    }
+
+    function loadCustomerHistory() {
+      addCustomerMessage(t("historyLoaded"), "bot");
+    }
+
+    function endCustomerSession() {
+      if (customerChatMode === "ai") {
+        addCustomerAIMessage("MediAssist AI session ended. You can still open a human support ticket if your issue needs official follow-up.");
+      } else {
+        addCustomerMessage(t("sessionEnded"), "bot");
+      }
+    }
+
+    function handleCustomerEnter(event) {
+      if (event.key === "Enter") {
+        sendCustomerMessage();
+      }
+
+      if (event.key === "Escape") {
+        closeSuggestions();
+      }
+    }
+
+    function scrollCustomerChat() {
+      setTimeout(() => {
+        customerChatBody.scrollTop = customerChatBody.scrollHeight;
+      }, 40);
+    }
+
+    function getActiveTicketCount() {
+      return tickets.filter(ticket => ticket.status === "active" && ticket.assignedTo === CURRENT_AGENT).length;
+    }
+
+    function canCurrentAgentReply(ticket) {
+      return ticket.status === "active" && ticket.assignedTo === CURRENT_AGENT;
+    }
+
+    function updateCapacity() {
+      const active = getActiveTicketCount();
+      capacityPill.textContent = `${active}/5 Active`;
+
+      if (active >= MAX_ACTIVE_TICKETS) {
+        capacityPill.style.color = "#ff6a78";
+        capacityPill.style.borderColor = "rgba(255,77,94,0.35)";
+        capacityPill.style.background = "rgba(255,77,94,0.14)";
+      } else {
+        capacityPill.style.color = "var(--msd-light-blue)";
+        capacityPill.style.borderColor = "rgba(21,159,211,0.3)";
+        capacityPill.style.background = "rgba(21,159,211,0.13)";
+      }
+    }
+
+    function setTicketFilter(filter, button) {
+      currentTicketFilter = filter;
+      document.querySelectorAll(".inbox-tabs button").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+      renderTickets();
+    }
+
+    function renderTickets() {
+      const search = ticketSearch.value.toLowerCase().trim();
+      let filtered = tickets;
+
+      if (currentTicketFilter === "new") {
+        filtered = filtered.filter(ticket => ticket.status === "new");
+      }
+
+      if (currentTicketFilter === "active") {
+        filtered = filtered.filter(ticket => ticket.status === "active" && ticket.assignedTo === CURRENT_AGENT);
+      }
+
+      if (currentTicketFilter === "resolved") {
+        filtered = filtered.filter(ticket => ticket.status === "resolved" && ticket.resolvedBy === CURRENT_AGENT);
+      }
+
+      if (search) {
+        filtered = filtered.filter(ticket =>
+          ticket.id.toLowerCase().includes(search) ||
+          ticket.customer.toLowerCase().includes(search) ||
+          ticket.subject.toLowerCase().includes(search) ||
+          ticket.preview.toLowerCase().includes(search) ||
+          ticket.region.toLowerCase().includes(search) ||
+          ticket.phone.toLowerCase().includes(search) ||
+          (ticket.assignedTo || "").toLowerCase().includes(search)
+        );
+      }
+
+      ticketList.innerHTML = "";
+
+      if (filtered.length === 0) {
+        ticketList.innerHTML = `
+          <div style="color:#64748b; font-size:13px; line-height:1.5; padding:12px;">
+            No customer queries found.
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(ticket => {
+        const card = document.createElement("button");
+        card.className = `ticket-chat-row ${selectedTicketId === ticket.id ? "active" : ""}`;
+        card.onclick = () => openTicket(ticket.id);
+
+        card.innerHTML = `
+          <div class="inbox-avatar">${ticket.customer.charAt(0)}</div>
+
+          <div class="inbox-middle">
+            <div class="inbox-name-line">
+              <div class="inbox-name">${ticket.customer}</div>
+              <div class="inbox-channel">${ticket.phone}</div>
+            </div>
+
+            <div class="inbox-subject">${ticket.subject}</div>
+            <div class="inbox-preview">${ticket.preview}</div>
+
+            <div class="inbox-meta-line">
+              <span class="inbox-ticket-id">${ticket.id}</span>
+              <span class="inbox-dot">•</span>
+              <span class="inbox-region">${ticket.channel}</span>
+              <span class="inbox-dot">•</span>
+              <span class="inbox-region">${ticket.region}</span>
+            </div>
+          </div>
+
+          <div class="inbox-side">
+            <span class="inbox-time">${ticket.lastUpdated}</span>
+            <span class="inbox-priority ${ticket.priority}">${ticket.priority.toUpperCase()}</span>
+            <span class="inbox-status">${ticket.status.toUpperCase()}</span>
+          </div>
+        `;
+
+        ticketList.appendChild(card);
+      });
+
+      updateCapacity();
+    }
+
+    function openTicket(ticketId) {
+      selectedTicketId = ticketId;
+      const ticket = tickets.find(item => item.id === ticketId);
+
+      renderTickets();
+      renderConversation(ticket);
+
+      if (window.innerWidth <= 760) {
+        agentShell.classList.add("mobile-open");
+      }
+    }
+
+    function renderMessageContent(message) {
+      if (!message.kind || message.kind === "text") {
+        return `${message.text}`;
+      }
+
+      if (message.kind === "file") {
+        return `
+          <div>${message.text || "Please see the attached file."}</div>
+          <div class="attachment-card">
+            <div class="attachment-file">
+              <div class="attachment-icon">📄</div>
+              <div class="attachment-info">
+                <b>${message.fileName || "MSD-support-document.pdf"}</b>
+                <span>${message.fileMeta || "PDF document · 245 KB"}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (message.kind === "image") {
+        return `
+          <div>${message.text || "Please see the attached image."}</div>
+          <div class="attachment-card">
+            <div class="attachment-image">
+              ${message.fileName || "MSD image attachment"}
+            </div>
+          </div>
+        `;
+      }
+
+      if (message.kind === "video") {
+        return `
+          <div>${message.text || "Please see the attached video."}</div>
+          <div class="attachment-card">
+            <div class="attachment-video">
+              <div class="play-icon">▶</div>
+            </div>
+            <div class="attachment-file">
+              <div class="attachment-icon">🎥</div>
+              <div class="attachment-info">
+                <b>${message.fileName || "MSD guidance video.mp4"}</b>
+                <span>${message.fileMeta || "Video · 2 min"}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (message.kind === "link") {
+        return `
+          <div>${message.text || "Please open this support link."}</div>
+          <div class="attachment-card">
+            <div class="attachment-link">
+              <b>${message.linkTitle || "MSD Support Link"}</b>
+              <span>${message.url || "https://msd.go.tz/support"}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      return `${message.text}`;
+    }
+
+    function renderConversation(ticket) {
+      const activeCount = getActiveTicketCount();
+      const canAccept = ticket.status === "new" && activeCount < MAX_ACTIVE_TICKETS;
+      const capacityFull = ticket.status === "new" && activeCount >= MAX_ACTIVE_TICKETS;
+      const canReply = canCurrentAgentReply(ticket);
+
+      const replyArea = canReply
+        ? `
+          <div class="agent-reply">
+            <div class="agent-tool-wrap">
+              <button class="agent-tool-btn" onclick="toggleAgentToolMenu('${ticket.id}')">☺</button>
+
+              <div class="agent-tool-menu" id="agentToolMenu-${ticket.id}">
+                <div class="agent-tool-head">
+                  <strong>Agent quick actions</strong>
+                  <span>Choose what you want to send</span>
+                </div>
+
+                <div class="agent-tool-grid">
+                  <button class="agent-tool-option" onclick="openAgentToolSection('${ticket.id}', 'greetings', this)">
+                    <div class="tool-icon">👋</div>
+                    <span>Greeting</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="sendAgentAsset('${ticket.id}', 'file')">
+                    <div class="tool-icon">📄</div>
+                    <span>File</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="sendAgentAsset('${ticket.id}', 'image')">
+                    <div class="tool-icon">🖼</div>
+                    <span>Image</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="sendAgentAsset('${ticket.id}', 'video')">
+                    <div class="tool-icon">🎥</div>
+                    <span>Video</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="openAgentToolSection('${ticket.id}', 'link', this)">
+                    <div class="tool-icon">🔗</div>
+                    <span>Link</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="openAgentToolSection('${ticket.id}', 'faq', this)">
+                    <div class="tool-icon">❔</div>
+                    <span>FAQ</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="openAgentToolSection('${ticket.id}', 'quickText', this)">
+                    <div class="tool-icon">💬</div>
+                    <span>Text</span>
+                  </button>
+
+                  <button class="agent-tool-option" onclick="sendAgentAsset('${ticket.id}', 'voice')">
+                    <div class="tool-icon">🎙</div>
+                    <span>Voice</span>
+                  </button>
+                </div>
+
+                <div class="agent-tool-section" id="toolSection-greetings-${ticket.id}">
+                  ${starterTemplates.map((template, index) => `
+                    <button class="quick-action-item" onclick="sendStarterTemplate('${ticket.id}', ${index})">
+                      <b>${template.label}</b>
+                      <small>${template.text}</small>
+                    </button>
+                  `).join("")}
+                </div>
+
+                <div class="agent-tool-section" id="toolSection-quickText-${ticket.id}">
+                  ${quickTextTemplates.map((template, index) => `
+                    <button class="quick-action-item" onclick="sendQuickTextTemplate('${ticket.id}', ${index})">
+                      <b>${template.label}</b>
+                      <small>${template.text}</small>
+                    </button>
+                  `).join("")}
+                </div>
+
+                <div class="agent-tool-section" id="toolSection-faq-${ticket.id}">
+                  ${faqArticles.map((article, index) => `
+                    <button class="quick-action-item" onclick="sendFaqArticle('${ticket.id}', ${index})">
+                      <b>${article.label}</b>
+                      <small>${article.text}</small>
+                    </button>
+                  `).join("")}
+                </div>
+
+                <div class="agent-tool-section" id="toolSection-link-${ticket.id}">
+                  <div class="tool-mini-form">
+                    <input id="linkTitle-${ticket.id}" placeholder="Link title e.g. MSD GePG Guide">
+                    <input id="linkUrl-${ticket.id}" placeholder="URL e.g. https://msd.go.tz">
+                    <button onclick="sendCustomLink('${ticket.id}')">Send Link</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <input
+              id="agentReplyInput"
+              type="text"
+              placeholder="Type reply to customer..."
+              onkeydown="handleAgentEnter(event, '${ticket.id}')"
+            >
+
+            <button class="send-agent-btn" onclick="sendAgentReply('${ticket.id}')">Send</button>
+          </div>
+        `
+        : `
+          <div class="agent-reply locked">
+            ${
+              ticket.status === "resolved"
+                ? `This ticket is resolved by ${ticket.resolvedBy || "an agent"} and is waiting for review.`
+                : ticket.status === "new"
+                  ? "This is a new ticket. Click Accept before replying to the customer."
+                  : `This ticket is assigned to ${ticket.assignedTo || "another agent"}. Only the assigned active agent can reply.`
+            }
+          </div>
+        `;
+
+      agentMain.innerHTML = `
+        <div class="conversation-top">
+          <div class="selected-title">
+            <h2>${ticket.subject}</h2>
+            <p>${ticket.customer} · ${ticket.id} · Assigned: ${ticket.assignedTo || "Not assigned"} · ${ticket.status.toUpperCase()}</p>
+          </div>
+
+          <div class="ticket-actions">
+            <button class="transfer" onclick="backToInboxMobile()">Inbox</button>
+
+            <button class="accept" onclick="acceptTicket('${ticket.id}')" ${canAccept ? "" : "disabled"}>
+              ${capacityFull ? "Full" : "Accept"}
+            </button>
+
+            <button class="resolve" onclick="resolveTicket('${ticket.id}')" ${canReply ? "" : "disabled"}>
+              Resolve
+            </button>
+
+            <button class="transfer" onclick="openTransferModal('${ticket.id}')" ${ticket.status === "resolved" ? "disabled" : ""}>
+              Transfer
+            </button>
+          </div>
+        </div>
+
+        <div class="conversation-area">
+          <div class="agent-chat">
+            <div class="agent-chat-body" id="agentChatBody">
+              ${ticket.messages.map(message => {
+                const side = message.sender === "agent" ? "agent" : "customer";
+                return `
+                  <div class="agent-message ${side}">
+                    <div class="agent-bubble-wrap">
+                      <span class="agent-label">${message.author}</span>
+                      <div class="agent-bubble">
+                        ${renderMessageContent(message)}
+                        <small>${message.time}</small>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+
+            ${replyArea}
+          </div>
+
+          <aside class="info-panel">
+            <div class="info-card">
+              <h3>Customer Details</h3>
+
+              <div class="info-row"><span>Customer</span><span>${ticket.customer}</span></div>
+              <div class="info-row"><span>Phone</span><span>${ticket.phone}</span></div>
+              <div class="info-row"><span>Region</span><span>${ticket.region}</span></div>
+              <div class="info-row"><span>Channel</span><span>${ticket.channel}</span></div>
+              <div class="info-row"><span>Status</span><span>${ticket.status.toUpperCase()}</span></div>
+              <div class="info-row"><span>Assigned</span><span>${ticket.assignedTo || "Not assigned"}</span></div>
+              <div class="info-row"><span>Resolved By</span><span>${ticket.resolvedBy || "-"}</span></div>
+              <div class="info-row"><span>Review</span><span>${ticket.reviewStatus || "-"}</span></div>
+            </div>
+
+            <div class="info-card">
+              <h3>Transfer History</h3>
+              ${
+                ticket.transferHistory.length
+                  ? ticket.transferHistory.map(agent => `
+                      <div class="timeline-item">
+                        <b>${agent}</b>
+                        handled or received this ticket.
+                      </div>
+                    `).join("")
+                  : `<div class="timeline-item"><b>No transfer yet</b>This ticket has not been transferred.</div>`
+              }
+            </div>
+
+            <div class="info-card">
+              <h3>Ticket Timeline</h3>
+              ${ticket.timeline.map(item => `
+                <div class="timeline-item">
+                  <b>${item}</b>
+                  ${ticket.lastUpdated}
+                </div>
+              `).join("")}
+            </div>
+          </aside>
+        </div>
+      `;
+
+      setTimeout(() => {
+        const body = document.getElementById("agentChatBody");
+        if (body) body.scrollTop = body.scrollHeight;
+
+        const input = document.getElementById("agentReplyInput");
+        if (input) input.focus();
+      }, 40);
+    }
+
+    function toggleAgentToolMenu(ticketId) {
+      const menu = document.getElementById(`agentToolMenu-${ticketId}`);
+      if (!menu) return;
+
+      document.querySelectorAll(".agent-tool-menu").forEach(item => {
+        if (item !== menu) item.classList.remove("open");
+      });
+
+      menu.classList.toggle("open");
+    }
+
+    function openAgentToolSection(ticketId, section, button) {
+      document.querySelectorAll(`#agentToolMenu-${ticketId} .agent-tool-option`).forEach(btn => {
+        btn.classList.remove("active");
+      });
+
+      button.classList.add("active");
+
+      document.querySelectorAll(`#agentToolMenu-${ticketId} .agent-tool-section`).forEach(item => {
+        item.classList.remove("open");
+      });
+
+      const target = document.getElementById(`toolSection-${section}-${ticketId}`);
+      if (target) target.classList.add("open");
+    }
+
+    function closeAgentToolMenu(ticketId) {
+      const menu = document.getElementById(`agentToolMenu-${ticketId}`);
+      if (menu) menu.classList.remove("open");
+    }
+
+    function pushAgentMessage(ticketId, message) {
+      const ticket = tickets.find(item => item.id === ticketId);
+      if (!ticket) return;
+
+      if (!canCurrentAgentReply(ticket)) {
+        alert("Only the assigned active agent can send messages on this ticket.");
+        return;
+      }
+
+      ticket.messages.push({
+        sender: "agent",
+        author: CURRENT_AGENT,
+        time: "Now",
+        ...message
+      });
+
+      ticket.preview = message.text || message.fileName || "Attachment sent";
+      ticket.lastUpdated = "Now";
+      ticket.timeline.push(`${CURRENT_AGENT} sent ${message.kind || "message"}.`);
+
+      closeAgentToolMenu(ticketId);
+      renderTickets();
+      renderConversation(ticket);
+    }
+
+    function sendStarterTemplate(ticketId, templateIndex) {
+      const template = starterTemplates[templateIndex];
+      if (!template) return;
+
+      pushAgentMessage(ticketId, {
+        kind: "text",
+        text: template.text
+      });
+    }
+
+    function sendQuickTextTemplate(ticketId, templateIndex) {
+      const template = quickTextTemplates[templateIndex];
+      if (!template) return;
+
+      pushAgentMessage(ticketId, {
+        kind: "text",
+        text: template.text
+      });
+    }
+
+    function sendFaqArticle(ticketId, index) {
+      const article = faqArticles[index];
+      if (!article) return;
+
+      pushAgentMessage(ticketId, {
+        kind: "link",
+        text: "Please check this support article:",
+        linkTitle: article.label,
+        url: article.text
+      });
+    }
+
+    function sendCustomLink(ticketId) {
+      const titleInput = document.getElementById(`linkTitle-${ticketId}`);
+      const urlInput = document.getElementById(`linkUrl-${ticketId}`);
+
+      const title = titleInput ? titleInput.value.trim() : "";
+      const url = urlInput ? urlInput.value.trim() : "";
+
+      if (!title || !url) {
+        alert("Please enter both link title and URL.");
+        return;
+      }
+
+      pushAgentMessage(ticketId, {
+        kind: "link",
+        text: "Please open this link for more information:",
+        linkTitle: title,
+        url
+      });
+    }
+
+    function sendAgentAsset(ticketId, type) {
+      if (type === "file") {
+        pushAgentMessage(ticketId, {
+          kind: "file",
+          text: "I have attached a support document for your reference.",
+          fileName: "MSD_Order_Status_Guide.pdf",
+          fileMeta: "PDF document · 245 KB"
+        });
+        return;
+      }
+
+      if (type === "image") {
+        pushAgentMessage(ticketId, {
+          kind: "image",
+          text: "I have attached an image guide to help you follow the steps.",
+          fileName: "MSD GePG Payment Steps"
+        });
+        return;
+      }
+
+      if (type === "video") {
+        pushAgentMessage(ticketId, {
+          kind: "video",
+          text: "I have attached a short video guide for this process.",
+          fileName: "MSD Customer Support Guide.mp4",
+          fileMeta: "Video · 2 min 15 sec"
+        });
+        return;
+      }
+
+      if (type === "voice") {
+        pushAgentMessage(ticketId, {
+          kind: "file",
+          text: "I have attached a short voice note explaining the next step.",
+          fileName: "Agent_voice_note.mp3",
+          fileMeta: "Voice note · 35 sec"
+        });
+      }
+    }
+
+    function acceptTicket(ticketId) {
+      const activeCount = getActiveTicketCount();
+
+      if (activeCount >= MAX_ACTIVE_TICKETS) {
+        alert("This agent already has 5 active clients. Resolve or transfer one ticket first.");
+        return;
+      }
+
+      const ticket = tickets.find(item => item.id === ticketId);
+
+      if (ticket.status !== "new") return;
+
+      ticket.status = "active";
+      ticket.assignedTo = CURRENT_AGENT;
+      ticket.lastUpdated = "Now";
+      ticket.timeline.push(`${CURRENT_AGENT} accepted the ticket.`);
+
+      if (!ticket.transferHistory.includes(CURRENT_AGENT)) {
+        ticket.transferHistory.push(CURRENT_AGENT);
+      }
+
+      updateCapacity();
+      renderTickets();
+      renderConversation(ticket);
+    }
+
+    function resolveTicket(ticketId) {
+      const ticket = tickets.find(item => item.id === ticketId);
+
+      if (!canCurrentAgentReply(ticket)) {
+        alert("Only the active assigned agent can resolve this ticket.");
+        return;
+      }
+
+      ticket.status = "resolved";
+      ticket.resolvedBy = CURRENT_AGENT;
+      ticket.reviewStatus = "Waiting for review";
+      ticket.lastUpdated = "Now";
+      ticket.preview = `Ticket resolved by ${CURRENT_AGENT} and waiting for review.`;
+
+      ticket.timeline.push(`${CURRENT_AGENT} resolved the ticket.`);
+      ticket.timeline.push("Ticket moved to Resolved section waiting for review.");
+
+      ticket.messages.push({
+        sender: "agent",
+        author: CURRENT_AGENT,
+        text: "This ticket has been marked as resolved and is now waiting for review.",
+        time: "Now",
+        kind: "text"
+      });
+
+      updateCapacity();
+      renderTickets();
+      renderConversation(ticket);
+    }
+
+    function openTransferModal(ticketId) {
+      const ticket = tickets.find(item => item.id === ticketId);
+
+      if (ticket.status === "resolved") {
+        alert("Resolved tickets cannot be transferred.");
+        return;
+      }
+
+      transferTicketId = ticketId;
+      selectedTransferAgent = "";
+      transferInput.value = "";
+
+      document.querySelectorAll(".agent-chip").forEach(chip => chip.classList.remove("selected"));
+      transferOverlay.classList.add("open");
+    }
+
+    function selectTransferAgent(agentName, button) {
+      selectedTransferAgent = agentName;
+      transferInput.value = agentName;
+
+      document.querySelectorAll(".agent-chip").forEach(chip => chip.classList.remove("selected"));
+      button.classList.add("selected");
+    }
+
+    function manualTransferInput() {
+      selectedTransferAgent = transferInput.value.trim();
+      document.querySelectorAll(".agent-chip").forEach(chip => chip.classList.remove("selected"));
+    }
+
+    function closeTransferModal() {
+      transferOverlay.classList.remove("open");
+      transferTicketId = null;
+      selectedTransferAgent = "";
+      transferInput.value = "";
+    }
+
+    function confirmTransfer() {
+      const agentName = selectedTransferAgent.trim();
+
+      if (!transferTicketId) return;
+
+      if (!agentName || !agentName.startsWith("@")) {
+        alert("Please choose an agent or type a name starting with @, for example @George.");
+        return;
+      }
+
+      const ticket = tickets.find(item => item.id === transferTicketId);
+      const fromAgent = ticket.assignedTo || "Unassigned Queue";
+
+      ticket.status = "active";
+      ticket.assignedTo = agentName;
+      ticket.lastUpdated = "Now";
+      ticket.preview = `Ticket transferred from ${fromAgent} to ${agentName}.`;
+
+      ticket.timeline.push(`Ticket transferred from ${fromAgent} to ${agentName}.`);
+
+      if (!ticket.transferHistory.includes(fromAgent) && fromAgent !== "Unassigned Queue") {
+        ticket.transferHistory.push(fromAgent);
+      }
+
+      if (!ticket.transferHistory.includes(agentName)) {
+        ticket.transferHistory.push(agentName);
+      }
+
+      ticket.messages.push({
+        sender: "agent",
+        author: fromAgent,
+        text: `I am transferring this ticket to ${agentName} for further support.`,
+        time: "Now",
+        kind: "text"
+      });
+
+      closeTransferModal();
+
+      updateCapacity();
+      renderTickets();
+      renderConversation(ticket);
+    }
+
+    function sendAgentReply(ticketId) {
+      const input = document.getElementById("agentReplyInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      pushAgentMessage(ticketId, {
+        text,
+        kind: "text"
+      });
+    }
+
+    function handleAgentEnter(event, ticketId) {
+      if (event.key === "Enter") {
+        sendAgentReply(ticketId);
+      }
+    }
+
+    function backToInboxMobile() {
+      agentShell.classList.remove("mobile-open");
+    }
+
+    setLanguage("en");
+    renderTickets();
+    updateCapacity();
+  </script>
+</body>
+</html>

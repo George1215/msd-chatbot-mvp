@@ -1,0 +1,9 @@
+Existing demo migration: passed
+Host credential file mode: 0600
+Public widget: present and visible
+Unauthenticated host setup: HTTP 401
+Host private installation file: HTTP 403
+Central private store: HTTP 403
+Ports 4300–4304: no listeners after shutdown
+Both ownership locks: released
+Verification browser sessions: closed

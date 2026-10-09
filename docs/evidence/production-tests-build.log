@@ -1,0 +1,179 @@
+
+> chat-msd-bot@0.1.0 codebreak
+> npm run test && npm run build
+
+
+> chat-msd-bot@0.1.0 test
+> npm run test -w services/api
+
+
+> test
+> NODE_ENV=test CHAT_MSD_DATA=/tmp/chat-msd-isolated-tests node --test test/*.test.js
+
+TAP version 13
+# (node:26482) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: site auto-registers pending and stays hidden until approved
+ok 1 - site auto-registers pending and stays hidden until approved
+  ---
+  duration_ms: 331.919083
+  type: 'test'
+  ...
+# Subtest: decline requires a reason
+ok 2 - decline requires a reason
+  ---
+  duration_ms: 573.601916
+  type: 'test'
+  ...
+# Subtest: central admin approval makes widget live
+ok 3 - central admin approval makes widget live
+  ---
+  duration_ms: 474.092625
+  type: 'test'
+  ...
+# (node:26483) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+ok 4 - host installer authenticates, protects mutations, persists credentials and serves public config to fresh visitors
+  ---
+  duration_ms: 421.409917
+  type: 'test'
+  ...
+# Subtest: lost registration response retries the same credential and cannot take over another installation
+ok 5 - lost registration response retries the same credential and cannot take over another installation
+  ---
+  duration_ms: 60.176584
+  type: 'test'
+  ...
+# Subtest: host reconnect rejects a different website and stores the correct replacement only server-side
+ok 6 - host reconnect rejects a different website and stores the correct replacement only server-side
+  ---
+  duration_ms: 42.804334
+  type: 'test'
+  ...
+# Subtest: host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+ok 7 - host login limits guesses, secure origins use Secure cookies, and expired sessions fail
+  ---
+  duration_ms: 117.874916
+  type: 'test'
+  ...
+# (node:26484) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: legacy installation credentials migrate without invalidating existing installations
+ok 8 - legacy installation credentials migrate without invalidating existing installations
+  ---
+  duration_ms: 2.16975
+  type: 'test'
+  ...
+# Subtest: installation recovery rotates credentials, preserves site content and never exposes stored hashes
+ok 9 - installation recovery rotates credentials, preserves site content and never exposes stored hashes
+  ---
+  duration_ms: 1754.113958
+  type: 'test'
+  ...
+# (node:26485) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: retention removes expired closed transcripts, preserves active work and records counts
+ok 10 - retention removes expired closed transcripts, preserves active work and records counts
+  ---
+  duration_ms: 240.20375
+  type: 'test'
+  ...
+# (node:26486) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: password changes revoke every old HTTP session and preserve unrelated users
+ok 11 - password changes revoke every old HTTP session and preserve unrelated users
+  ---
+  duration_ms: 3512.504125
+  type: 'test'
+  ...
+# Subtest: agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+ok 12 - agent reset codes require reauthentication, expire, supersede older codes and are single-use under concurrency
+  ---
+  duration_ms: 3960.101584
+  type: 'test'
+  ...
+# (node:26487) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: SQLite migration, rollback, persistence, backup restore and checksum validation
+ok 13 - SQLite migration, rollback, persistence, backup restore and checksum validation
+  ---
+  duration_ms: 1234.662625
+  type: 'test'
+  ...
+# Subtest: failed legacy migration can be retried without losing the source
+ok 14 - failed legacy migration can be retried without losing the source
+  ---
+  duration_ms: 10.472875
+  type: 'test'
+  ...
+# (node:26488) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+ok 15 - input validation, bootstrap race, CORS, local FAQ conflicts and rate limits
+  ---
+  duration_ms: 1381.064875
+  type: 'test'
+  ...
+# Subtest: offline administrator recovery refuses a locked store and stores only a digest
+ok 16 - offline administrator recovery refuses a locked store and stores only a digest
+  ---
+  duration_ms: 408.943416
+  type: 'test'
+  ...
+# (node:26490) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+ok 17 - selected/all FAQ broadcasts, empty FAQs, transfer and ownership boundaries
+  ---
+  duration_ms: 2589.3205
+  type: 'test'
+  ...
+# (node:26491) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: complete governance, isolation, assignment and conversation lifecycle
+ok 18 - complete governance, isolation, assignment and conversation lifecycle
+  ---
+  duration_ms: 1791.653166
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 8296.341959
+
+> chat-msd-bot@0.1.0 build
+> npm run build -w packages/widget && vite build
+
+
+> build
+> vite build
+
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 30 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/chat-msd-widget.js  79.27 kB │ gzip: 21.52 kB
+✓ built in 175ms
+vite v7.3.6 building client environment for production...
+transforming...
+✓ 43 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/apps/apps/admin/index.html          0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/agent/index.html          0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/index.html     0.41 kB │ gzip:  0.27 kB
+dist/apps/apps/dummy-site/admin.html     0.43 kB │ gzip:  0.28 kB
+dist/apps/assets/client-DtKfliUm.css    38.92 kB │ gzip:  7.45 kB
+dist/apps/assets/agent-Cbj5IJrX.js       3.87 kB │ gzip:  1.58 kB
+dist/apps/assets/siteAdmin-CsbPInv4.js   4.90 kB │ gzip:  2.00 kB
+dist/apps/assets/admin-RPnVDoue.js       7.82 kB │ gzip:  2.72 kB
+dist/apps/assets/site-BNYOIDrk.js        9.05 kB │ gzip:  3.58 kB
+dist/apps/assets/client-BTDfsF8H.js     48.56 kB │ gzip: 15.22 kB
+✓ built in 219ms

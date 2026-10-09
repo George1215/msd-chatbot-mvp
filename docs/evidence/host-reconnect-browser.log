@@ -1,0 +1,4 @@
+Administrator generated a replacement credential.
+Authenticated host session reconnected; the credential is persisted server-side.
+Reload retains recovered setup; credential fields clear and the admin can dismiss the one-time credential.
+Browser installation recovery passed.

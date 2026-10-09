@@ -1,0 +1,14 @@
+{
+  "name": "@chat-msd/widget",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^7.1.9"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.4"
+  }
+}

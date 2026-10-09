@@ -1,0 +1,33 @@
+{
+  "name": "chat-msd-bot",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "services/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w services/api",
+    "build": "npm run build -w packages/widget && vite build",
+    "test": "npm run test -w services/api",
+    "codebreak": "npm run test && npm run build",
+    "dev:admin": "vite --host localhost --port 4301 --strictPort --open /apps/admin/",
+    "dev:agent": "vite --host localhost --port 4302 --strictPort --open /apps/agent/",
+    "dev:site": "vite --host localhost --port 4303 --strictPort --open /apps/dummy-site/",
+    "dev": "node scripts/dev.mjs",
+    "recover:admin": "node scripts/recover-admin.mjs",
+    "dev:host": "npm run dev -w services/host",
+    "prod:local": "npm run build:production-local && node scripts/production-local.mjs",
+    "prod:setup": "node scripts/production-local.mjs --setup-only",
+    "prod:smoke": "node scripts/production-smoke.mjs",
+    "db": "node scripts/database.mjs",
+    "test:sqlite": "STORE_BACKEND=sqlite npm run test",
+    "verify:production": "npm run build:production-local && node scripts/verify-production.mjs",
+    "prod:browser": "node scripts/browser-production.mjs",
+    "prod:backup": "node scripts/simulation-backup.mjs",
+    "build:production-local": "VITE_API_URL= npm run build"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}
